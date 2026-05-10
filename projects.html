@@ -7,6 +7,15 @@
 
   <title>All Projects | Residential Property KL</title>
   <meta name="description" content="Browse residential new launch projects and developer collections across Kuala Lumpur and Selangor." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://residentialpropertykl.com/projects.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://residentialpropertykl.com/projects.html" />
+  <meta property="og:title" content="All Projects | Residential Property KL" />
+  <meta property="og:description" content="New launches and developer projects in KL, PJ and Selangor." />
+  <meta property="og:image" content="https://residentialpropertykl.com/images/logo.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin />
   <meta name="theme-color" content="#1B4332" />
 
   <link rel="stylesheet" href="/shared-layout.css?v=70" />
@@ -86,7 +95,7 @@
           rgba(15,23,19,0.82) 42%,
           rgba(15,23,19,0.20) 78%
         ),
-        url("/images/hero-residential-green.jpg") center/cover no-repeat;
+        url("/images/hero-residential-green.webp") center/cover no-repeat;
       animation: heroZoom 18s ease-in-out infinite alternate;
     }
 
@@ -423,7 +432,7 @@
       projectGrid.innerHTML = developers.map((developer, index) => {
         const name = escapeHtml(developer.name || "Developer Collection");
         const description = escapeHtml(developer.description || "Explore residential projects from this developer.");
-        const image = developer.coverImage || "/images/hero-residential-green.jpg";
+        const image = developer.coverImage || "/images/hero-residential-green.webp";
         const slug = escapeHtml(developer.slug || "Developer");
 
         return `

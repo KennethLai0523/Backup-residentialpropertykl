@@ -2,14 +2,16 @@
 <html lang="en">
 <head>
   <link rel="icon" href="/favicon.ico?v=2">
-  <link rel="canonical" id="canonical-link">
+  <link rel="canonical" id="canonical-link" href="https://residentialpropertykl.com/">
   <meta name="description" id="meta-desc" content="Residential property listing in Kuala Lumpur and Selangor.">
 
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="index, follow" />
 
   <title>Property Detail | Residential Property KL</title>
   <meta name="theme-color" content="#1B4332" />
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin />
 
   <link rel="stylesheet" href="/shared-layout.css?v=80" />
 
@@ -431,7 +433,7 @@
       top: 110px;
       background:
         linear-gradient(rgba(27,67,50,.94), rgba(27,67,50,.96)),
-        url("/images/hero-residential-green.jpg") center/cover no-repeat;
+        url("/images/hero-residential-green.webp") center/cover no-repeat;
       color: #fff;
       border-radius: 34px;
       padding: 28px;
@@ -530,7 +532,7 @@
     .cta-card {
       background:
         linear-gradient(rgba(27,67,50,.92), rgba(27,67,50,.96)),
-        url("/images/hero-residential-green.jpg") center/cover no-repeat;
+        url("/images/hero-residential-green.webp") center/cover no-repeat;
       color: #fff;
       text-align: center;
     }
@@ -687,6 +689,14 @@ doc,
 getDoc
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+  import {
+    canonicalFromLocation,
+    applySocialMeta,
+    injectJsonLd,
+    SITE_ORIGIN,
+    SITE_NAME
+  } from "/seo-meta.js?v=1";
+
   const firebaseConfig = {
     apiKey: "AIzaSyBKO4RNc5r8GoPHQyRHdUllLVwtXFNJyVo",
     authDomain: "residentialpropertykl.firebaseapp.com",
@@ -813,45 +823,74 @@ const data = snap.data();
 
       const pageTitle = data.title || "Property Detail";
       const gallery = getGallery(data);
-      const mainImage = gallery[0] || "/images/hero-residential-green.jpg";
+      const mainImage = gallery[0] || "/images/hero-residential-green.webp";
+      const absImage = (u) =>
+        !u || String(u).startsWith("http") ? u : `${SITE_ORIGIN}${String(u).startsWith("/") ? "" : "/"}${u}`;
 
       document.title = `${pageTitle} | Residential Property KL`;
 
+      const descParts = [
+        pageTitle,
+        data.location || "",
+        data.type || "",
+        data.listingType === "rent" ? "for rent" : "for sale",
+        "Klang Valley — Kuala Lumpur & Selangor."
+      ].filter(Boolean);
+      const metaContent = descParts.join(" · ").slice(0, 158);
+
       const metaDesc = document.getElementById("meta-desc");
       if (metaDesc) {
-        metaDesc.setAttribute(
-          "content",
-          `${pageTitle} in ${data.location || ""}. ${data.type || ""} ${data.listingType === "rent" ? "for rent" : "for sale"} in Kuala Lumpur / Selangor.`
-        );
+        metaDesc.setAttribute("content", metaContent);
       }
 
+      const canonicalUrl = canonicalFromLocation();
       const canonical = document.getElementById("canonical-link");
-      if (canonical) {
-        canonical.href = `https://residentialpropertykl.com${window.location.pathname}`;
+      if (canonical) canonical.href = canonicalUrl;
+
+      applySocialMeta({
+        title: `${pageTitle} | ${SITE_NAME}`,
+        description: metaContent,
+        url: canonicalUrl,
+        image: absImage(mainImage),
+        type: "website"
+      });
+
+      const priceDigits = String(data.price || "").replace(/[^\d.]/g, "");
+      const offer = {
+        "@type": "Offer",
+        priceCurrency: "MYR",
+        availability: "https://schema.org/InStock",
+        url: canonicalUrl
+      };
+      if (priceDigits && !Number.isNaN(Number(priceDigits))) {
+        offer.price = priceDigits;
       }
 
-      const structuredData = {
+      injectJsonLd("listing-schema", {
         "@context": "https://schema.org",
-        "@type": "Product",
+        "@type": "RealEstateListing",
         name: pageTitle,
-        description: data.description || "",
-        image: mainImage,
-        offers: {
-          "@type": "Offer",
-          price: String(data.price || "").replace(/[^\d.]/g, ""),
-          priceCurrency: "MYR",
-          availability: "https://schema.org/InStock"
-        }
-      };
+        description: (data.description || metaContent).toString().slice(0, 5000),
+        url: canonicalUrl,
+        image: (gallery.length ? gallery : [mainImage]).map(absImage),
+        address: {
+          "@type": "PostalAddress",
+          addressLocality: data.city || data.location || "Kuala Lumpur",
+          addressRegion: data.state || "Selangor",
+          addressCountry: "MY"
+        },
+        offers: offer
+      });
 
-      const oldSchema = document.getElementById("listing-schema");
-      if (oldSchema) oldSchema.remove();
-
-      const script = document.createElement("script");
-      script.id = "listing-schema";
-      script.type = "application/ld+json";
-      script.text = JSON.stringify(structuredData);
-      document.head.appendChild(script);
+      injectJsonLd("listing-breadcrumb", {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: `${SITE_ORIGIN}/` },
+          { "@type": "ListItem", position: 2, name: "Listings", item: `${SITE_ORIGIN}/categories/all-listings` },
+          { "@type": "ListItem", position: 3, name: pageTitle, item: canonicalUrl }
+        ]
+      });
 
       const safeTitle = escapeHtml(pageTitle);
       const safeLocation = escapeHtml(safeText(data.location));
@@ -881,6 +920,8 @@ const data = snap.data();
           src="${img}"
           alt="Thumbnail ${index + 1}"
           class="${index === 0 ? "active" : ""}"
+          loading="${index === 0 ? "eager" : "lazy"}"
+          decoding="async"
           onclick="changeMainImage('${img.replace(/'/g, "\\'")}', this)"
         >
       `).join("");

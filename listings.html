@@ -7,7 +7,20 @@
 
   <title>All Listings | Residential Property KL</title>
   <meta name="description" content="Browse residential property listings including condominiums, apartments, terrace houses, bungalows and more in Kuala Lumpur and Selangor." />
-  <link rel="canonical" id="canonicalLink" href="https://residentialpropertykl.com/listings.html" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" id="canonicalLink" href="https://residentialpropertykl.com/categories/all-listings" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Residential Property KL" />
+  <meta property="og:locale" content="en_MY" />
+  <meta property="og:url" content="https://residentialpropertykl.com/categories/all-listings" />
+  <meta property="og:title" content="Property Listings | Residential Property KL" />
+  <meta property="og:description" content="Browse condos, apartments, terrace homes, semi-D, bungalows and landed property across the Klang Valley." />
+  <meta property="og:image" content="https://residentialpropertykl.com/images/logo.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Property Listings | Residential Property KL" />
+  <meta name="twitter:description" content="Browse condos, apartments, terrace homes, semi-D, bungalows and landed property across the Klang Valley." />
+  <meta name="twitter:image" content="https://residentialpropertykl.com/images/logo.png" />
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin />
   <meta name="theme-color" content="#1B4332" />
 
   <link rel="stylesheet" href="/shared-layout.css?v=70" />
@@ -88,7 +101,7 @@
           rgba(15,23,19,0.82) 42%,
           rgba(15,23,19,0.20) 78%
         ),
-        url("/images/hero-residential-green.jpg") center/cover no-repeat;
+        url("/images/hero-residential-green.webp") center/cover no-repeat;
       animation: heroZoom 18s ease-in-out infinite alternate;
     }
 
@@ -533,6 +546,7 @@
     collection,
     getDocs
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { canonicalFromLocation, applySocialMeta, SITE_NAME, DEFAULT_OG_IMAGE } from "/seo-meta.js?v=1";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBKO4RNc5r8GoPHQyRHdUllLVwtXFNJyVo",
@@ -637,6 +651,16 @@
     return (value || "").toLowerCase().trim();
   }
 
+  /** Match URL segments like mont-kiara to city text like "Mont Kiara" */
+  function locationMatchesFilter(item, locationSegment) {
+    const needle = normalizeText(locationSegment).replace(/[\s-]+/g, "");
+    if (!needle) return true;
+    const hay = [item.city, item.location, item.area, item.address, item.state]
+      .map((x) => normalizeText(x).replace(/[\s-]+/g, ""))
+      .join(" ");
+    return hay.includes(needle);
+  }
+
   function formatPrice(price) {
     if (!price) return "Price on request";
 
@@ -717,7 +741,7 @@ const detailUrl = `/listing/${slug}-${item.id}`;
 
 card.innerHTML = `
 <div class="listing-thumb"
-  style="background-image:url('${item.image || "/images/hero-residential-green.jpg"}')">
+  style="background-image:url('${item.image || "/images/hero-residential-green.webp"}')">
 
   <div class="watermark-box">
     <span class="watermark-text">RESIDENTIAL PROPERTY KL</span>
@@ -782,6 +806,18 @@ card.innerHTML = `
   }
 
   function updatePageText(type, listingType, location, area) {
+    const syncUrlMeta = (pageTitleStr, description) => {
+      const canonical = canonicalFromLocation();
+      canonicalLink.href = canonical;
+      applySocialMeta({
+        title: `${pageTitleStr} | ${SITE_NAME}`,
+        description,
+        url: canonical,
+        image: DEFAULT_OG_IMAGE,
+        type: "website"
+      });
+    };
+
     if (type && listingType && location) {
       const niceType = slugToType(type);
       const niceIntent = listingType === "rent" ? "Rent" : "Sale";
@@ -798,9 +834,10 @@ card.innerHTML = `
       seoText.textContent = `Explore ${niceType.toLowerCase()} for ${niceIntent.toLowerCase()} in ${niceLocation}. Browse the latest residential property listings in ${niceLocation}.`;
 
       if (metaDesc) {
-        metaDesc.setAttribute("content", `Browse ${niceType.toLowerCase()} for ${niceIntent.toLowerCase()} in ${niceLocation}. View the latest residential property listings in ${niceLocation}.`);
+        metaDesc.setAttribute("content", `Browse ${niceType.toLowerCase()} for ${niceIntent.toLowerCase()} in ${niceLocation}, Klang Valley. View the latest residential property listings in ${niceLocation}.`);
       }
 
+      syncUrlMeta(titleText, metaDesc ? metaDesc.getAttribute("content") : seoText.textContent);
       return;
     }
 
@@ -809,7 +846,11 @@ card.innerHTML = `
       pageTitle.textContent = titleText;
       crumbLabel.textContent = titleText;
       document.title = `${titleText} | Residential Property KL`;
-      seoText.textContent = `Browse residential property listings in ${area}, including condominiums, apartments, landed homes and new project options.`;
+      seoText.textContent = `Browse residential property listings in ${area}, including condominiums, apartments, landed homes and new project options across Kuala Lumpur and Selangor.`;
+      if (metaDesc) {
+        metaDesc.setAttribute("content", `Find condos, apartments, terrace houses, semi-D and bungalows in ${area}. Klang Valley residential listings from Residential Property KL.`);
+      }
+      syncUrlMeta(titleText, metaDesc ? metaDesc.getAttribute("content") : seoText.textContent);
       return;
     }
 
@@ -818,7 +859,11 @@ card.innerHTML = `
       pageTitle.textContent = niceType;
       crumbLabel.textContent = niceType;
       document.title = `${niceType} | Residential Property KL`;
-      seoText.textContent = `Browse ${niceType.toLowerCase()} listings in Kuala Lumpur and Selangor.`;
+      seoText.textContent = `Browse ${niceType.toLowerCase()} listings in Kuala Lumpur, Petaling Jaya and Selangor (Klang Valley).`;
+      if (metaDesc) {
+        metaDesc.setAttribute("content", `View ${niceType.toLowerCase()} for sale and for rent across KL, PJ and Selangor. Updated residential listings.`);
+      }
+      syncUrlMeta(niceType, metaDesc ? metaDesc.getAttribute("content") : seoText.textContent);
       return;
     }
 
@@ -826,6 +871,10 @@ card.innerHTML = `
     crumbLabel.textContent = "All Listings";
     document.title = "All Listings | Residential Property KL";
     seoText.textContent = "Browse residential property listings including condominiums, apartments, terrace houses, bungalows and more in Kuala Lumpur and Selangor.";
+    if (metaDesc) {
+      metaDesc.setAttribute("content", seoText.textContent);
+    }
+    syncUrlMeta("All Listings", seoText.textContent);
   }
 
   function applyToggleFilter(selected) {
@@ -873,10 +922,7 @@ card.innerHTML = `
       }
 
       if (location) {
-        filtered = filtered.filter(item =>
-          normalizeText(item.city).includes(location) ||
-          normalizeText(item.location).includes(location)
-        );
+        filtered = filtered.filter((item) => locationMatchesFilter(item, location));
       }
 
       if (area) {

@@ -4,11 +4,15 @@
   <link rel="icon" href="/favicon.ico?v=2">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="robots" content="index, follow" />
+  <meta name="description" id="meta-desc" content="Explore residential new launch projects in Kuala Lumpur and Selangor with Residential Property KL." />
+  <link rel="canonical" id="canonical-link" href="https://residentialpropertykl.com/projects.html" />
 
   <title>Project Detail | Residential Property KL</title>
 
   <meta name="theme-color" content="#1B4332" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin />
 
   <link rel="stylesheet" href="/shared-layout.css?v=70">
 
@@ -372,7 +376,7 @@
       overflow: hidden;
       background:
         linear-gradient(rgba(27,67,50,.92), rgba(27,67,50,.96)),
-        url("/images/hero-residential-green.jpg") center/cover no-repeat;
+        url("/images/hero-residential-green.webp") center/cover no-repeat;
       color: #fff;
       text-align: center;
     }
@@ -633,6 +637,14 @@ import {
   getDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+import {
+  canonicalFromLocation,
+  applySocialMeta,
+  injectJsonLd,
+  SITE_ORIGIN,
+  SITE_NAME
+} from "/seo-meta.js?v=1";
+
 const db = getFirestore();
 
 function getProjectId() {
@@ -679,7 +691,46 @@ async function loadProject() {
 
     const data = snap.data();
 
-    document.title = `${data.title || "Project"} | Residential Property KL`;
+    const pageTitle = data.title || "Project";
+    document.title = `${pageTitle} | Residential Property KL`;
+
+    const canonicalUrl = canonicalFromLocation();
+    const canon = document.getElementById("canonical-link");
+    if (canon) canon.href = canonicalUrl;
+
+    const summaryText = (data.shortDescription || `${pageTitle} — new residential project in ${data.location || "Kuala Lumpur & Selangor"}.`).toString().slice(0, 160);
+    const meta = document.getElementById("meta-desc");
+    if (meta) meta.setAttribute("content", summaryText);
+
+    const heroImg = data.coverImage || "";
+    const ogImage = heroImg && heroImg.startsWith("http") ? heroImg : heroImg ? `${SITE_ORIGIN}${heroImg.startsWith("/") ? "" : "/"}${heroImg}` : `${SITE_ORIGIN}/images/logo.png`;
+
+    applySocialMeta({
+      title: `${pageTitle} | ${SITE_NAME}`,
+      description: summaryText,
+      url: canonicalUrl,
+      image: ogImage,
+      type: "website"
+    });
+
+    injectJsonLd("project-schema", {
+      "@context": "https://schema.org",
+      "@type": "RealEstateListing",
+      name: pageTitle,
+      description: summaryText,
+      url: canonicalUrl,
+      image: ogImage
+    });
+
+    injectJsonLd("project-breadcrumb", {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: `${SITE_ORIGIN}/` },
+        { "@type": "ListItem", position: 2, name: "Projects", item: `${SITE_ORIGIN}/projects.html` },
+        { "@type": "ListItem", position: 3, name: pageTitle, item: canonicalUrl }
+      ]
+    });
 
     document.getElementById("heroTitle").innerText = data.title || "";
     document.getElementById("heroLocation").innerText = data.location || "";

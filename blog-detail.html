@@ -4,10 +4,13 @@
   <link rel="icon" href="/favicon.ico?v=2">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" id="canonical-link" href="https://residentialpropertykl.com/blog.html" />
 
   <title>Blog Detail | Residential Property KL</title>
   <meta name="description" id="metaDesc" content="Read residential property guides and market insights from Residential Property KL." />
   <meta name="theme-color" content="#1B4332" />
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin />
 
   <link rel="stylesheet" href="/shared-layout.css?v=90" />
 
@@ -271,7 +274,7 @@
       top: 110px;
       background:
         linear-gradient(rgba(27,67,50,.94), rgba(27,67,50,.96)),
-        url("/images/hero-residential-green.jpg") center/cover no-repeat;
+        url("/images/hero-residential-green.webp") center/cover no-repeat;
       color: #fff;
       border-radius: 34px;
       padding: 28px;
@@ -454,6 +457,14 @@
     getDocs
   } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
+  import {
+    canonicalFromLocation,
+    applySocialMeta,
+    injectJsonLd,
+    SITE_ORIGIN,
+    SITE_NAME
+  } from "/seo-meta.js?v=1";
+
   const firebaseConfig = {
     apiKey: "AIzaSyBKO4RNc5r8GoPHQyRHdUllLVwtXFNJyVo",
     authDomain: "residentialpropertykl.firebaseapp.com",
@@ -471,6 +482,14 @@
   const loadingState = document.getElementById("loadingState");
   const errorState = document.getElementById("errorState");
 
+  function slugifySegment(value) {
+    return (value || "")
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+  }
+
   function getBlogKey() {
     const path = window.location.pathname;
 
@@ -480,6 +499,11 @@
 
     const params = new URLSearchParams(window.location.search);
     return params.get("id");
+  }
+
+  function blogUrlFromData(data, docId) {
+    const raw = (data.slug && String(data.slug).trim()) ? slugifySegment(data.slug) : docId;
+    return `/blog/${raw}`;
   }
 
   function formatDate(value) {
@@ -579,13 +603,98 @@
       const category = data.category || "Property Insight";
       const date = formatDate(data.createdAt || data.publishedAt);
       const content = data.content || "No content available.";
-      const description = data.excerpt || data.metaDescription || `Read ${title} from Residential Property KL.`;
+      const description = (data.excerpt || data.metaDescription || `Read ${title} from Residential Property KL.`).slice(0, 160);
+      const canonicalPath = blogUrlFromData(data, blogSnap.id);
+      const canonicalUrl = `${SITE_ORIGIN}${canonicalPath}`;
+      const linkCanon = document.getElementById("canonical-link");
+      if (linkCanon) linkCanon.href = canonicalUrl;
 
       document.title = `${title} | Residential Property KL`;
 
       const metaDesc = document.getElementById("metaDesc");
       if (metaDesc) {
         metaDesc.setAttribute("content", description);
+      }
+
+      const coverAbs = coverImage.startsWith("http") ? coverImage : `${SITE_ORIGIN}${coverImage.startsWith("/") ? "" : "/"}${coverImage}`;
+      applySocialMeta({
+        title: `${title} | ${SITE_NAME}`,
+        description,
+        url: canonicalUrl,
+        image: coverAbs,
+        type: "article"
+      });
+
+      let publishedIso = new Date().toISOString();
+      try {
+        if (typeof data.createdAt?.toDate === "function") {
+          publishedIso = data.createdAt.toDate().toISOString();
+        } else if (data.createdAt?.seconds) {
+          publishedIso = new Date(data.createdAt.seconds * 1000).toISOString();
+        }
+      } catch {
+        /* keep default */
+      }
+
+      injectJsonLd("blog-jsonld", {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        headline: title,
+        description,
+        image: coverAbs,
+        datePublished: publishedIso,
+        author: {
+          "@type": "Person",
+          name: author
+        },
+        publisher: {
+          "@type": "Organization",
+          name: SITE_NAME,
+          logo: {
+            "@type": "ImageObject",
+            url: `${SITE_ORIGIN}/images/logo.png`
+          }
+        },
+        mainEntityOfPage: canonicalUrl
+      });
+
+      injectJsonLd("blog-breadcrumb", {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: `${SITE_ORIGIN}/` },
+          { "@type": "ListItem", position: 2, name: "Blog", item: `${SITE_ORIGIN}/blog.html` },
+          { "@type": "ListItem", position: 3, name: title, item: canonicalUrl }
+        ]
+      });
+
+      let relatedHtml = "";
+      try {
+        const allSnap = await getDocs(collection(db, "blogs"));
+        const others = [];
+        allSnap.forEach((d) => {
+          if (d.id === blogSnap.id) return;
+          const row = d.data();
+          if (row.status && row.status !== "published") return;
+          others.push({ id: d.id, ...row });
+        });
+        const pick = others.sort(() => Math.random() - 0.5).slice(0, 3);
+        if (pick.length) {
+          relatedHtml = `
+            <div class="more-card" style="margin-top:18px;">
+              <h3>Related Articles</h3>
+              <ul style="margin:12px 0 0;padding-left:18px;line-height:1.7;color:#444;">
+                ${pick.map((p) => {
+                  const t = escapeHtml(p.title || "Article");
+                  const u = blogUrlFromData(p, p.id);
+                  return `<li><a href="${u}">${t}</a></li>`;
+                }).join("")}
+              </ul>
+            </div>
+          `;
+        }
+      } catch {
+        relatedHtml = "";
       }
 
       appWrap.innerHTML = `
@@ -595,7 +704,7 @@
 
           <div class="container hero-inner">
             <div class="breadcrumb">
-              <a href="/index.html">Home</a>
+              <a href="/">Home</a>
               <span>›</span>
               <a href="/blog.html">Blog</a>
               <span>›</span>
@@ -664,6 +773,7 @@
                     ← Back to Blog
                   </a>
                 </div>
+                ${relatedHtml}
               </aside>
 
             </div>

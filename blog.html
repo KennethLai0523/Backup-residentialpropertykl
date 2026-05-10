@@ -7,6 +7,16 @@
 
   <title>Blog | Residential Property KL</title>
   <meta name="description" content="Read residential property guides, market insights, buying tips, rental advice and new project updates across Kuala Lumpur and Selangor." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://residentialpropertykl.com/blog.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Residential Property KL" />
+  <meta property="og:url" content="https://residentialpropertykl.com/blog.html" />
+  <meta property="og:title" content="Blog | Residential Property KL" />
+  <meta property="og:description" content="Guides and insights for Klang Valley buyers, renters and investors." />
+  <meta property="og:image" content="https://residentialpropertykl.com/images/logo.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin />
   <meta name="theme-color" content="#1B4332" />
 
   <link rel="stylesheet" href="/shared-layout.css?v=60" />
@@ -71,7 +81,7 @@
           rgba(15,23,19,0.82) 42%,
           rgba(15,23,19,0.20) 78%
         ),
-        url("/images/hero-residential-green.jpg") center/cover no-repeat;
+        url("/images/hero-residential-green.webp") center/cover no-repeat;
       animation: heroZoom 18s ease-in-out infinite alternate;
     }
 
@@ -403,7 +413,7 @@
     .cta-card {
       background:
         linear-gradient(rgba(27,67,50,.92), rgba(27,67,50,.96)),
-        url("/images/hero-residential-green.jpg") center/cover no-repeat;
+        url("/images/hero-residential-green.webp") center/cover no-repeat;
       color: #fff;
       border-radius: 34px;
       padding: 64px 44px;
@@ -673,8 +683,17 @@
       .replace(/'/g, "&#039;");
   }
 
+  function slugifySegment(value) {
+    return (value || "")
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+  }
+
   function getBlogUrl(item) {
-    return `/blog/${item.slug || item.id}`;
+    const segment = (item.slug && String(item.slug).trim()) ? slugifySegment(item.slug) : item.id;
+    return `/blog/${segment}`;
   }
 
   function createBlogCard(item, index) {

@@ -91,7 +91,7 @@
           rgba(15,23,19,0.82) 42%,
           rgba(15,23,19,0.20) 78%
         ),
-        url("/images/hero-residential-green.jpg") center/cover no-repeat;
+        url("/images/hero-residential-green.webp") center/cover no-repeat;
       animation: heroZoom 18s ease-in-out infinite alternate;
     }
 
@@ -324,7 +324,7 @@
     .cta-card {
       background:
         linear-gradient(rgba(27,67,50,.92), rgba(27,67,50,.96)),
-        url("/images/hero-residential-green.jpg") center/cover no-repeat;
+        url("/images/hero-residential-green.webp") center/cover no-repeat;
       color: #fff;
       border-radius: 34px;
       padding: 64px 44px;
@@ -634,7 +634,7 @@
         const title = escapeHtml(project.title || "Untitled Project");
         const location = escapeHtml(project.location || "Location available on request");
         const shortDescription = escapeHtml(project.shortDescription || "Explore this residential new project.");
-        const image = project.coverImage || "/images/hero-residential-green.jpg";
+        const image = project.coverImage || "/images/hero-residential-green.webp";
         const slug = project.slug || "project";
         const url = `/project/${slug}-${project.id}`;
 

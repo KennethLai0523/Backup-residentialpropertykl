@@ -46,6 +46,24 @@ function slugPart(text) {
     .replace(/(^-|-$)/g, "");
 }
 
+/** Match public URLs built in listings.html / index.html */
+function listingPublicLoc(baseUrl, doc) {
+  const data = doc.data();
+  const pathSlug = (data.slug && String(data.slug).trim())
+    ? slugify(data.slug)
+    : slugify(data.title);
+  return `${baseUrl}/listing/${pathSlug}-${doc.id}`;
+}
+
+/** Prefer /blog/{slug} (Firebase rewrite → blog-detail.html) */
+function blogPublicLoc(baseUrl, doc) {
+  const data = doc.data();
+  const segment = (data.slug && String(data.slug).trim())
+    ? slugify(data.slug)
+    : doc.id;
+  return `${baseUrl}/blog/${segment}`;
+}
+
 function mapTypeToSeo(type) {
   const value = (type || "").toLowerCase();
 
@@ -90,6 +108,10 @@ exports.sitemap = functions.https.onRequest(async (req, res) => {
 </url>
 <url>
   <loc>${baseUrl}/blog.html</loc>
+  <lastmod>${new Date().toISOString()}</lastmod>
+</url>
+<url>
+  <loc>${baseUrl}/projects.html</loc>
   <lastmod>${new Date().toISOString()}</lastmod>
 </url>
 <url>
@@ -154,7 +176,7 @@ exports.sitemap = functions.https.onRequest(async (req, res) => {
     listingSnapshot.forEach((doc) => {
       const data = doc.data();
 
-      const listingUrl = `${baseUrl}/listing/${slugify(data.title)}-${doc.id}`;
+      const listingUrl = listingPublicLoc(baseUrl, doc);
       const lastmod = data.updatedAt
         ? toIsoDate(data.updatedAt)
         : data.createdAt
@@ -194,7 +216,7 @@ exports.sitemap = functions.https.onRequest(async (req, res) => {
 
       if (data.status && data.status !== "published") return;
 
-      const blogUrl = `${baseUrl}/blog-detail.html?id=${doc.id}`;
+      const blogUrl = blogPublicLoc(baseUrl, doc);
       const lastmod = data.updatedAt
         ? toIsoDate(data.updatedAt)
         : data.createdAt

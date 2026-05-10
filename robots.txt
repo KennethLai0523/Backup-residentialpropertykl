@@ -1,0 +1,9 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+
+# Admin / auth (not for indexing)
+Disallow: /admin.html
+Disallow: /login.html
+
+Sitemap: https://residentialpropertykl.com/sitemap.xml
