@@ -204,7 +204,7 @@
 
       document.getElementById("agentProfile").innerHTML = `
         <div class="agent-profile">
-          <img src="${agent.image}" alt="${agent.name}">
+          <img src="${agent.image}" alt="${agent.name}" decoding="async">
           <div>
             <h1>${agent.name}</h1>
             <div class="agent-role">${agent.role}</div>
@@ -236,7 +236,7 @@
         card.className = "listing-card";
 
         card.innerHTML = `
-          <img src="${item.image || "/images/default-property.jpg"}" alt="${item.title || "Listing"}">
+          <img src="${item.image || "/images/default-property.jpg"}" alt="${item.title || "Listing"}" loading="lazy" decoding="async">
           <div class="listing-body">
             <div class="listing-price">${formatPrice(item.price)}</div>
             <h3>${item.title || "-"}</h3>

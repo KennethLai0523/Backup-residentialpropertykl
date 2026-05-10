@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
 <script type="application/ld+json">
 {
@@ -82,12 +84,10 @@
 }
 </script>
   <!-- Favicon (Google + all devices) -->
-<link rel="icon" href="/favicon.ico?v=2">
-<link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
-<link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
-  
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="/favicon.ico?v=2">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+  <link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
+
   <title>Residential Property KL | Klang Valley Condos, Landed Homes &amp; New Projects</title>
   <meta name="description" content="Find residential property for sale and rent in Kuala Lumpur, Petaling Jaya and Selangor. Browse condos, apartments, terrace houses, semi-D, bungalows and Klang Valley new launches with Residential Property KL." />
   <meta name="robots" content="index, follow" />
@@ -106,7 +106,7 @@
   <meta name="twitter:image" content="https://residentialpropertykl.com/images/hero-residential-green.webp" />
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin />
   <link rel="preconnect" href="https://www.googletagmanager.com" />
-  <link rel="preload" as="image" href="/images/hero-residential-green.webp" fetchpriority="high" />
+  <link rel="preload" as="image" href="/images/hero-residential-green.webp" fetchpriority="high" media="(min-width: 768px)" />
 
   <style>
     :root {
@@ -2402,7 +2402,7 @@ border: 1px solid #D7E4DA;
             <div class="about-showcase-card">
               <div class="about-inner">
                 <div class="about-showcase-photo">
-                  <img src="images/kenneth.png" alt="Kenneth Lai">
+                  <img src="images/kenneth.png" alt="Kenneth Lai" width="140" height="140" loading="lazy" decoding="async">
                   <div class="about-showcase-name">Kenneth Lai</div>
                   <div class="about-showcase-role">Residential Property Specialist</div>
                 </div>
@@ -2444,25 +2444,25 @@ border: 1px solid #D7E4DA;
         <div class="team-grid">
           
           <a href="/agent.html?id=kenneth-lai" class="team-card">
-            <img src="images/kenneth.png" alt="Kenneth Lai, residential property specialist" loading="lazy" width="220" height="260">
+            <img src="images/kenneth.png" alt="Kenneth Lai, residential property specialist" loading="lazy" decoding="async" width="220" height="260">
             <div class="team-name">Kenneth Lai</div>
             <div class="team-role">Residential Property Specialist</div>
           </a>
     
           <a href="/agent.html?id=agnes-chee" class="team-card">
-            <img src="images/agnes.png" alt="Agnes Chee, senior negotiator" loading="lazy" width="220" height="260">
+            <img src="images/agnes.png" alt="Agnes Chee, senior negotiator" loading="lazy" decoding="async" width="220" height="260">
             <div class="team-name">Agnes Chee</div>
             <div class="team-role">Senior Negotiator</div>
           </a>
 
           <a href="/agent.html?id=andrew-yap" class="team-card">
-            <img src="images/andrew.png" alt="Andrew Yap, residential analyst" loading="lazy" width="220" height="260">
+            <img src="images/andrew.png" alt="Andrew Yap, residential analyst" loading="lazy" decoding="async" width="220" height="260">
             <div class="team-name">Andrew Yap</div>
             <div class="team-role">Residential Analyst</div>
           </a>
 
           <a href="/agent.html?id=magdalene" class="team-card">
-            <img src="images/magdalene.png" alt="Magdalene, residential consultant" loading="lazy" width="220" height="260">
+            <img src="images/magdalene.png" alt="Magdalene, residential consultant" loading="lazy" decoding="async" width="220" height="260">
             <div class="team-name">Magdalene</div>
             <div class="team-role">Residential Consultant</div>
           </a>
@@ -2871,7 +2871,7 @@ function renderAgent(index) {
   if (!photoBox || !contentBox) return;
 
   photoBox.innerHTML = `
-    <img src="${agent.image}" alt="${agent.name}">
+    <img src="${agent.image}" alt="${agent.name}" width="140" height="140" loading="lazy" decoding="async">
     <div class="about-showcase-name">${agent.name}</div>
     <div class="about-showcase-role">${agent.role}</div>
   `;

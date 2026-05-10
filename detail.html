@@ -995,7 +995,7 @@ const data = snap.data();
 
                 <section class="card gallery-card">
                   <div class="main-image-wrap">
-                    <img id="mainImage" class="main-image" src="${mainImage}" alt="${safeTitle}">
+                    <img id="mainImage" class="main-image" src="${mainImage}" alt="${safeTitle}" fetchpriority="high" decoding="async">
 
                     <div class="watermark-box">
                       <span class="watermark-text">RESIDENTIAL PROPERTY KL</span>
@@ -1106,7 +1106,7 @@ const data = snap.data();
 
               <aside class="agent-card">
                 <div class="agent-top">
-                  <img src="${data.agentImage || "/images/listingphoto.png"}" alt="Residential Property KL Group">
+                  <img src="${data.agentImage || "/images/listingphoto.png"}" alt="Residential Property KL Group" loading="lazy" decoding="async">
                   <div>
                     <div class="agent-name">${escapeHtml(data.agentName || "Residential Property KL Group")}</div>
                     <div class="agent-sub">Residential Property Specialist</div>

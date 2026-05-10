@@ -769,7 +769,9 @@ async function loadProject() {
           <img
             class="story-image"
             src="${image}"
-            alt="${data.title || "Project image"}">
+            alt="${data.title || "Project image"}"
+            loading="lazy"
+            decoding="async">
         `;
       }
     });
@@ -805,7 +807,9 @@ async function loadProject() {
                 ? images.map(img => `
                   <img
                     src="${img}"
-                    alt="${section.title || "Project image"}">
+                    alt="${section.title || "Project image"}"
+                    loading="lazy"
+                    decoding="async">
                 `).join("")
                 : ""
             }
@@ -823,6 +827,8 @@ async function loadProject() {
         const image = document.createElement("img");
         image.src = img;
         image.alt = data.title || "Project image";
+        image.loading = "lazy";
+        image.decoding = "async";
         gallery.appendChild(image);
       });
     }

@@ -708,7 +708,7 @@
     return `
       <article class="blog-card" style="animation-delay:${Math.min(index * 0.07, 0.45)}s">
         <a class="blog-card-image" href="${url}">
-          <img src="${coverImage}" alt="${title}" loading="lazy" />
+          <img src="${coverImage}" alt="${title}" loading="lazy" decoding="async" />
           <div class="blog-card-category">${category}</div>
         </a>
 
