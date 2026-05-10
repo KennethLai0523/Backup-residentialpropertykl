@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Admin Login | Residential Property KL</title>
+  <link rel="icon" href="/images/favicon.png?v=2">
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f3f3f3;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 420px;
+      background: #fff;
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+    }
+
+    h1 {
+      margin: 0 0 24px;
+      font-size: 34px;
+      color: #111;
+    }
+
+    .label {
+      display: block;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #333;
+    }
+
+    .input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1px solid #d8d8d8;
+      border-radius: 10px;
+      font-size: 16px;
+      margin-bottom: 16px;
+      outline: none;
+    }
+
+    .input:focus {
+      border-color: #d9a73f;
+      box-shadow: 0 0 0 3px rgba(217,167,63,0.12);
+    }
+
+    .btn {
+      width: 100%;
+      border: none;
+      border-radius: 10px;
+      background: #d9a73f;
+      color: #111;
+      font-size: 16px;
+      font-weight: 700;
+      padding: 14px 16px;
+      cursor: pointer;
+    }
+
+    .msg {
+      margin-top: 16px;
+      font-size: 14px;
+      min-height: 22px;
+    }
+
+    .msg.error { color: #d93025; }
+    .msg.success { color: #188038; }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h1>Admin Login</h1>
+
+  <label class="label">Email</label>
+  <input class="input" type="email" id="email" />
+
+  <label class="label">Password</label>
+  <input class="input" type="password" id="password" />
+
+  <button class="btn" id="loginBtn">Login</button>
+
+  <div class="msg" id="msg"></div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+  setPersistence,
+  browserLocalPersistence
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBKO4RNc5r8GoPHQyRHdUllLVwtXFNJyVo",
+  authDomain: "residentialpropertykl.firebaseapp.com",
+  projectId: "residentialpropertykl",
+  storageBucket: "residentialpropertykl.firebasestorage.app",
+  messagingSenderId: "952845303526",
+  appId: "1:952845303526:web:7b604dca11ad50a93bc527"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+const emailInput = document.getElementById("email");
+const passwordInput = document.getElementById("password");
+const loginBtn = document.getElementById("loginBtn");
+const msg = document.getElementById("msg");
+
+function setMessage(text, type = "") {
+  msg.textContent = text;
+  msg.className = "msg";
+  if (type) msg.classList.add(type);
+}
+
+/* ✅ Prevent redirect loop */
+let checked = false;
+
+onAuthStateChanged(auth, (user) => {
+  if (user && !checked) {
+    checked = true;
+    window.location.href = "admin.html";
+  }
+});
+
+/* ✅ Login with persistence */
+async function login() {
+  const email = emailInput.value.trim();
+  const password = passwordInput.value;
+
+  if (!email || !password) {
+    setMessage("Enter email and password", "error");
+    return;
+  }
+
+  loginBtn.disabled = true;
+  setMessage("Logging in...", "success");
+
+  try {
+    await setPersistence(auth, browserLocalPersistence);
+    await signInWithEmailAndPassword(auth, email, password);
+
+    setMessage("Success! Redirecting...", "success");
+
+    setTimeout(() => {
+      window.location.href = "admin.html";
+    }, 800);
+
+  } catch (err) {
+    setMessage("Invalid email or password", "error");
+  } finally {
+    loginBtn.disabled = false;
+  }
+}
+
+loginBtn.addEventListener("click", login);
+passwordInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") login();
+});
+</script>
+
+</body>
+</html>

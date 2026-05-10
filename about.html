@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" href="/favicon.ico?v=2">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+
+  <title>About Us | Residential Property KL</title>
+
+  <meta
+    name="description"
+    content="Residential Property KL is a premium residential property platform focused on condominiums, apartments, landed homes and new projects across Kuala Lumpur and Selangor."
+  />
+
+  <link rel="stylesheet" href="/shared-layout.css?v=50" />
+  <meta name="theme-color" content="#1B4332" />
+
+  <style>
+    :root{
+      --bg:#F7F5F0;
+      --card:#ffffff;
+      --dark:#111111;
+      --muted:#666666;
+      --green:#1B4332;
+      --green2:#2D6A4F;
+      --gold:#EADFCB;
+      --line:rgba(0,0,0,0.08);
+    }
+
+    *{
+      box-sizing:border-box;
+    }
+
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--dark);
+      font-family:Arial,Helvetica,sans-serif;
+      overflow-x:hidden;
+    }
+
+    .container{
+      width:min(1240px,calc(100% - 40px));
+      margin:0 auto;
+    }
+
+    /* HERO */
+
+    .about-hero{
+      position:relative;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      overflow:hidden;
+      background:#0f1713;
+    }
+
+    .about-hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+
+      background:
+        linear-gradient(
+          90deg,
+          rgba(15,23,19,0.96) 0%,
+          rgba(15,23,19,0.82) 38%,
+          rgba(15,23,19,0.25) 70%
+        ),
+        url('/images/hero-residential-green.jpg')
+        center/cover no-repeat;
+
+      transform:scale(1.05);
+
+      animation:heroZoom 18s ease-in-out infinite alternate;
+    }
+
+    @keyframes heroZoom{
+      from{
+        transform:scale(1.03);
+      }
+      to{
+        transform:scale(1.10);
+      }
+    }
+
+    .hero-glow{
+      position:absolute;
+      width:700px;
+      height:700px;
+      border-radius:50%;
+      background:rgba(234,223,203,0.08);
+      filter:blur(80px);
+      right:-180px;
+      top:-120px;
+    }
+
+    .hero-content{
+      position:relative;
+      z-index:2;
+      width:min(760px,100%);
+      padding:160px 0 120px;
+    }
+
+    .hero-tag{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+
+      padding:10px 16px;
+
+      border-radius:999px;
+
+      background:rgba(255,255,255,0.08);
+
+      border:1px solid rgba(255,255,255,0.12);
+
+      color:#fff;
+
+      font-size:13px;
+      font-weight:700;
+      letter-spacing:0.5px;
+
+      backdrop-filter:blur(12px);
+    }
+
+    .hero-tag::before{
+      content:"";
+      width:8px;
+      height:8px;
+      border-radius:50%;
+      background:#EADFCB;
+    }
+
+    .hero-content h1{
+      margin:26px 0 22px;
+
+      color:#fff;
+
+      font-size:clamp(52px,7vw,92px);
+      line-height:0.96;
+      letter-spacing:-3px;
+
+      max-width:900px;
+    }
+
+    .hero-content p{
+      margin:0;
+
+      color:rgba(255,255,255,0.82);
+
+      font-size:19px;
+      line-height:1.9;
+
+      max-width:640px;
+    }
+
+    .hero-actions{
+      display:flex;
+      gap:14px;
+      margin-top:36px;
+      flex-wrap:wrap;
+    }
+
+    .hero-btn{
+      height:54px;
+      padding:0 24px;
+
+      border-radius:999px;
+
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+
+      font-size:15px;
+      font-weight:700;
+
+      transition:
+        transform .22s ease,
+        background .22s ease,
+        border-color .22s ease;
+    }
+
+    .hero-btn:hover{
+      transform:translateY(-3px);
+    }
+
+    .hero-btn-primary{
+      background:#EADFCB;
+      color:#111;
+    }
+
+    .hero-btn-outline{
+      border:1px solid rgba(255,255,255,0.16);
+      color:#fff;
+      backdrop-filter:blur(12px);
+      background:rgba(255,255,255,0.05);
+    }
+
+    /* FLOATING STATS */
+
+    .floating-stats{
+      position:relative;
+      z-index:5;
+
+      margin-top:-90px;
+    }
+
+    .stats-grid{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:20px;
+    }
+
+    .stat-card{
+      position:relative;
+
+      overflow:hidden;
+
+      background:rgba(255,255,255,0.78);
+
+      backdrop-filter:blur(18px);
+
+      border:1px solid rgba(255,255,255,0.55);
+
+      border-radius:26px;
+
+      padding:34px 28px;
+
+      box-shadow:
+        0 20px 60px rgba(0,0,0,0.10);
+
+      transition:
+        transform .28s ease,
+        box-shadow .28s ease;
+    }
+
+    .stat-card:hover{
+      transform:translateY(-8px);
+
+      box-shadow:
+        0 30px 80px rgba(0,0,0,0.14);
+    }
+
+    .stat-card::before{
+      content:"";
+      position:absolute;
+
+      width:120px;
+      height:120px;
+
+      background:rgba(27,67,50,0.06);
+
+      border-radius:24px;
+
+      right:-30px;
+      top:-30px;
+
+      transform:rotate(25deg);
+    }
+
+    .stat-number{
+      position:relative;
+      z-index:1;
+
+      font-size:34px;
+      font-weight:800;
+
+      color:var(--green);
+
+      margin-bottom:10px;
+    }
+
+    .stat-text{
+      position:relative;
+      z-index:1;
+
+      color:#555;
+      line-height:1.8;
+      font-size:14px;
+      font-weight:700;
+    }
+
+    /* STORY */
+
+    .story-section{
+      padding:120px 0 40px;
+    }
+
+    .story-grid{
+      display:grid;
+      grid-template-columns:1.05fr 0.95fr;
+      gap:40px;
+      align-items:center;
+    }
+
+    .story-left{
+      position:relative;
+    }
+
+    .story-image-wrap{
+      position:relative;
+      overflow:hidden;
+
+      border-radius:34px;
+
+      box-shadow:
+        0 30px 80px rgba(0,0,0,0.12);
+    }
+
+    .story-image{
+      width:100%;
+      height:720px;
+      object-fit:cover;
+
+      transition:transform 0.5s ease;
+    }
+
+    .story-image-wrap:hover .story-image{
+      transform:scale(1.05);
+    }
+
+    .story-badge{
+      position:absolute;
+      left:30px;
+      bottom:30px;
+
+      background:rgba(15,23,19,0.82);
+
+      backdrop-filter:blur(18px);
+
+      border:1px solid rgba(255,255,255,0.12);
+
+      border-radius:22px;
+
+      padding:22px 24px;
+
+      color:#fff;
+    }
+
+    .story-badge strong{
+      display:block;
+      font-size:34px;
+      margin-bottom:6px;
+    }
+
+    .story-right h2{
+      margin:0 0 20px;
+
+      font-size:clamp(40px,5vw,66px);
+      line-height:1.02;
+      letter-spacing:-2px;
+    }
+
+    .story-right p{
+      margin:0 0 22px;
+
+      color:#555;
+
+      line-height:1.95;
+      font-size:16px;
+    }
+
+    .story-points{
+      display:grid;
+      gap:16px;
+      margin-top:34px;
+    }
+
+    .story-point{
+      display:flex;
+      gap:16px;
+      align-items:flex-start;
+
+      padding:18px 20px;
+
+      background:#fff;
+
+      border:1px solid var(--line);
+
+      border-radius:20px;
+    }
+
+    .story-icon{
+      width:48px;
+      height:48px;
+
+      border-radius:14px;
+
+      background:#EADFCB;
+
+      color:#1B4332;
+
+      display:flex;
+      align-items:center;
+      justify-content:center;
+
+      font-weight:800;
+      flex-shrink:0;
+    }
+
+    .story-point h3{
+      margin:0 0 6px;
+      font-size:18px;
+    }
+
+    .story-point p{
+      margin:0;
+      font-size:14px;
+      line-height:1.8;
+    }
+
+    /* EXPERIENCE STRIP */
+
+    .experience-strip{
+      padding:100px 0;
+    }
+
+    .experience-box{
+      position:relative;
+      overflow:hidden;
+
+      border-radius:36px;
+
+      padding:70px;
+
+      background:
+        linear-gradient(
+          135deg,
+          rgba(27,67,50,0.96),
+          rgba(45,106,79,0.92)
+        );
+
+      color:#fff;
+
+      box-shadow:
+        0 30px 90px rgba(0,0,0,0.16);
+    }
+
+    .experience-box::before{
+      content:"";
+      position:absolute;
+
+      width:440px;
+      height:440px;
+
+      border-radius:50%;
+
+      background:rgba(255,255,255,0.06);
+
+      top:-180px;
+      right:-120px;
+    }
+
+    .experience-box h2{
+      position:relative;
+      z-index:1;
+
+      margin:0 0 18px;
+
+      font-size:clamp(38px,5vw,62px);
+      line-height:1.04;
+      letter-spacing:-2px;
+    }
+
+    .experience-box p{
+      position:relative;
+      z-index:1;
+
+      margin:0;
+
+      width:min(760px,100%);
+
+      color:rgba(255,255,255,0.82);
+
+      line-height:2;
+      font-size:17px;
+    }
+
+    /* CTA */
+
+    .final-cta{
+      padding:10px 0 120px;
+    }
+
+    .cta-card{
+      background:#fff;
+
+      border-radius:34px;
+
+      padding:70px 50px;
+
+      text-align:center;
+
+      border:1px solid rgba(0,0,0,0.06);
+
+      box-shadow:
+        0 24px 80px rgba(0,0,0,0.08);
+    }
+
+    .cta-card h2{
+      margin:0 0 16px;
+
+      font-size:clamp(40px,5vw,66px);
+      line-height:1.02;
+      letter-spacing:-2px;
+    }
+
+    .cta-card p{
+      width:min(760px,100%);
+      margin:0 auto;
+
+      color:#666;
+
+      line-height:1.95;
+      font-size:17px;
+    }
+
+    .cta-buttons{
+      display:flex;
+      justify-content:center;
+      gap:16px;
+      margin-top:36px;
+      flex-wrap:wrap;
+    }
+
+    .cta-btn{
+      height:58px;
+      padding:0 28px;
+
+      border-radius:999px;
+
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+
+      font-size:15px;
+      font-weight:700;
+
+      transition:
+        transform .22s ease,
+        box-shadow .22s ease;
+    }
+
+    .cta-btn:hover{
+      transform:translateY(-4px);
+    }
+
+    .cta-wa{
+      background:#25D366;
+      color:#fff;
+    }
+
+    .cta-dark{
+      background:#111;
+      color:#fff;
+    }
+
+    /* MOBILE */
+
+    @media (max-width: 1000px){
+
+      .story-grid{
+        grid-template-columns:1fr;
+      }
+
+      .story-image{
+        height:520px;
+      }
+
+      .stats-grid{
+        grid-template-columns:repeat(2,1fr);
+      }
+
+      .experience-box{
+        padding:44px 28px;
+      }
+    }
+
+    @media (max-width: 640px){
+
+      .hero-content{
+        padding:140px 0 110px;
+      }
+
+      .hero-content h1{
+        letter-spacing:-1.8px;
+      }
+
+      .stats-grid{
+        grid-template-columns:1fr;
+      }
+
+      .story-image{
+        height:420px;
+      }
+
+      .story-badge{
+        left:18px;
+        bottom:18px;
+      }
+
+      .cta-card{
+        padding:44px 24px;
+      }
+
+      .experience-box{
+        border-radius:26px;
+      }
+    }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes cardReveal {
+  from { opacity: 0; transform: translateY(35px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.topbar {
+  animation: slideDown 0.55s ease both;
+}
+
+.hero-tag,
+.hero-content h1,
+.hero-content p,
+.hero-actions {
+  animation: fadeUp 0.8s ease both;
+}
+
+.hero-tag { animation-delay: 0.1s; }
+.hero-content h1 { animation-delay: 0.22s; }
+.hero-content p { animation-delay: 0.34s; }
+.hero-actions { animation-delay: 0.46s; }
+
+.stat-card,
+.story-image-wrap,
+.story-right,
+.experience-box,
+.cta-card {
+  animation: cardReveal 0.7s ease both;
+}
+
+.stat-card:nth-child(1) { animation-delay: 0.05s; }
+.stat-card:nth-child(2) { animation-delay: 0.12s; }
+.stat-card:nth-child(3) { animation-delay: 0.19s; }
+.stat-card:nth-child(4) { animation-delay: 0.26s; }
+
+.story-point {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.story-point:hover {
+  transform: translateX(8px);
+  box-shadow: 0 18px 40px rgba(0,0,0,0.08);
+}
+
+.stat-card,
+.story-image-wrap,
+.experience-box,
+.cta-card {
+  transition: transform 0.28s ease, box-shadow 0.28s ease;
+}
+
+.stat-card:hover,
+.experience-box:hover,
+.cta-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 30px 80px rgba(0,0,0,0.14);
+}
+
+.hero-btn,
+.cta-btn {
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+.hero-btn:hover,
+.cta-btn:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.18);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+  </style>
+</head>
+
+<body>
+
+<div id="site-header"></div>
+
+<section class="about-hero">
+
+  <div class="hero-glow"></div>
+
+  <div class="container">
+
+    <div class="hero-content">
+
+      <div class="hero-tag">
+        Residential Property Specialists
+      </div>
+
+      <h1>
+        Elevated Living.<br>
+        Premium Residential Expertise.
+      </h1>
+
+      <p>
+        Residential Property KL is built around modern residential property
+        branding, strategic market positioning and premium client experience
+        across Kuala Lumpur and Selangor.
+      </p>
+
+      <div class="hero-actions">
+        <a href="/listings.html" class="hero-btn hero-btn-primary">
+          Explore Properties
+        </a>
+
+        <a href="/contact.html" class="hero-btn hero-btn-outline">
+          Contact Us
+        </a>
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+<section class="floating-stats">
+
+  <div class="container">
+
+    <div class="stats-grid">
+
+      <div class="stat-card">
+        <div class="stat-number">KL & Selangor</div>
+        <div class="stat-text">
+          Focused residential market coverage across strategic locations.
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-number">Condo & Landed</div>
+        <div class="stat-text">
+          From premium condominiums to landed family homes and new launches.
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-number">Team-Based</div>
+        <div class="stat-text">
+          Stronger branding presence and coordinated client support.
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-number">Fast Response</div>
+        <div class="stat-text">
+          Practical communication through direct WhatsApp support.
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+<section class="story-section">
+
+  <div class="container">
+
+    <div class="story-grid">
+
+      <div class="story-left">
+
+        <div class="story-image-wrap">
+
+          <img
+            src="/images/hero-residential-green.jpg"
+            class="story-image"
+          >
+
+          <div class="story-badge">
+            <strong>Premium</strong>
+            Residential Property Platform
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="story-right">
+
+        <h2>
+          A Modern Residential Property Brand
+        </h2>
+
+        <p>
+          Residential Property KL was created to build a stronger,
+          cleaner and more premium residential property experience
+          for buyers, sellers, landlords, tenants and investors.
+        </p>
+
+        <p>
+          Instead of relying on traditional single-agent branding,
+          we position ourselves as a focused residential property
+          platform designed around stronger presentation, better
+          property exposure and practical market understanding.
+        </p>
+
+        <p>
+          We focus heavily on residential property categories including
+          condominiums, apartments, landed homes and new developments
+          throughout Kuala Lumpur and Selangor.
+        </p>
+
+        <div class="story-points">
+
+          <div class="story-point">
+
+            <div class="story-icon">01</div>
+
+            <div>
+              <h3>Residential Market Focus</h3>
+              <p>
+                Focused recommendations based on actual residential
+                lifestyle and investment needs.
+              </p>
+            </div>
+
+          </div>
+
+          <div class="story-point">
+
+            <div class="story-icon">02</div>
+
+            <div>
+              <h3>Premium Branding Approach</h3>
+              <p>
+                Cleaner presentation, stronger trust and higher-end
+                digital property marketing.
+              </p>
+            </div>
+
+          </div>
+
+          <div class="story-point">
+
+            <div class="story-icon">03</div>
+
+            <div>
+              <h3>Practical Property Guidance</h3>
+              <p>
+                Helping clients evaluate layout, accessibility,
+                pricing, lifestyle fit and long-term value.
+              </p>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+<section class="experience-strip">
+
+  <div class="container">
+
+    <div class="experience-box">
+
+      <h2>
+        Residential Property,<br>
+        Presented Beautifully.
+      </h2>
+
+      <p>
+        Our objective is not simply to display listings —
+        but to create a premium residential property ecosystem
+        that feels modern, trustworthy and visually elevated
+        for today’s homebuyers and investors.
+      </p>
+
+    </div>
+
+  </div>
+
+</section>
+
+<section class="final-cta">
+
+  <div class="container">
+
+    <div class="cta-card">
+
+      <h2>
+        Let’s Find Your Next Home
+      </h2>
+
+      <p>
+        Whether you are searching for your first home,
+        upgrading, relocating or investing,
+        Residential Property KL is ready to help you
+        discover suitable residential opportunities
+        across Kuala Lumpur and Selangor.
+      </p>
+
+      <div class="cta-buttons">
+
+        <a
+          href="https://wa.me/60166287357"
+          target="_blank"
+          class="cta-btn cta-wa"
+        >
+          WhatsApp Us
+        </a>
+
+        <a
+          href="/contact.html"
+          class="cta-btn cta-dark"
+        >
+          Contact Us
+        </a>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+<div id="site-footer"></div>
+
+<script type="module" src="/shared-layout.js"></script>
+
+</body>
+</html>

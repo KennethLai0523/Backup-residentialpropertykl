@@ -1,0 +1,76 @@
+{
+  "hosting": {
+    "public": ".",
+    "rewrites": [
+
+
+      {
+        "source": "/api/importListing",
+        "function": "importListing"
+      },
+      {
+        "source": "/categories/**",
+        "destination": "/listings.html"
+      },
+      {
+        "source": "/project/**",
+        "destination": "/project-detail.html"
+      },
+
+      {
+        "source": "/blog/**",
+        "destination": "/blog-detail.html"
+      },
+      {
+        "source": "/*-for-**",
+        "destination": "/listings.html"
+      },
+      {
+        "source": "/listing/**",
+        "destination": "/detail.html"
+      },
+      {
+        "source": "/sitemap.xml",
+        "function": "sitemap"
+      }
+    ]
+  },
+  "functions": [
+    {
+      "codebase": "default",
+      "disallowLegacyRuntimeConfig": true,
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ],
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" run lint"
+      ],
+      "source": "functions"
+    },
+    {
+      "source": "blog",
+      "codebase": "blog",
+      "disallowLegacyRuntimeConfig": true,
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ]
+    }
+  ],
+  "firestore": {
+    "database": "(default)",
+    "location": "asia-southeast1",
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "storage": {
+    "rules": "storage.rules"
+  }
+}

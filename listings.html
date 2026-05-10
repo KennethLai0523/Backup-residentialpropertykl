@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" href="/favicon.ico?v=2">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>All Listings | Residential Property KL</title>
+  <meta name="description" content="Browse residential property listings including condominiums, apartments, terrace houses, bungalows and more in Kuala Lumpur and Selangor." />
+  <link rel="canonical" id="canonicalLink" href="https://residentialpropertykl.com/listings.html" />
+  <meta name="theme-color" content="#1B4332" />
+
+  <link rel="stylesheet" href="/shared-layout.css?v=70" />
+
+  <style>
+    :root {
+      --bg: #F7F5F0;
+      --dark: #111;
+      --muted: #666;
+      --green: #1B4332;
+      --green2: #2D6A4F;
+      --gold: #EADFCB;
+      --line: rgba(0,0,0,0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--dark);
+      overflow-x: hidden;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .container {
+      width: min(1240px, calc(100% - 40px));
+      margin: 0 auto;
+    }
+
+    @keyframes heroZoom {
+      from { transform: scale(1.03); }
+      to { transform: scale(1.1); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes cardReveal {
+      from { opacity: 0; transform: translateY(35px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-18px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .topbar {
+      animation: slideDown 0.55s ease both;
+    }
+
+    .listings-hero {
+      position: relative;
+      min-height: 520px;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      background: #0f1713;
+      color: #fff;
+    }
+
+    .listings-hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(
+          90deg,
+          rgba(15,23,19,0.96) 0%,
+          rgba(15,23,19,0.82) 42%,
+          rgba(15,23,19,0.20) 78%
+        ),
+        url("/images/hero-residential-green.jpg") center/cover no-repeat;
+      animation: heroZoom 18s ease-in-out infinite alternate;
+    }
+
+    .listings-hero::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 130px;
+      background: linear-gradient(to top, var(--bg), transparent);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      width: min(860px, 100%);
+      padding: 150px 0 120px;
+    }
+
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.14);
+      backdrop-filter: blur(14px);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: .5px;
+      animation: fadeUp .8s ease .1s both;
+    }
+
+    .hero-tag::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--gold);
+    }
+
+    .listings-hero h1 {
+      margin: 26px 0 22px;
+      font-size: clamp(52px, 7vw, 88px);
+      line-height: .96;
+      letter-spacing: -3px;
+      animation: fadeUp .8s ease .22s both;
+    }
+
+    .listings-hero p {
+      margin: 0;
+      max-width: 700px;
+      color: rgba(255,255,255,.82);
+      font-size: 18px;
+      line-height: 1.9;
+      animation: fadeUp .8s ease .34s both;
+    }
+
+    .listing-panel {
+      position: relative;
+      z-index: 5;
+      margin-top: -80px;
+      padding-bottom: 110px;
+    }
+
+    .filter-card {
+      background: rgba(255,255,255,.84);
+      backdrop-filter: blur(22px);
+      border: 1px solid rgba(255,255,255,.62);
+      border-radius: 30px;
+      box-shadow: 0 24px 80px rgba(0,0,0,.12);
+      padding: 22px;
+      margin-bottom: 34px;
+      animation: cardReveal .75s ease .42s both;
+    }
+
+    .filter-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .results-text {
+      color: #555;
+      font-weight: 800;
+    }
+
+    .listing-toggle {
+      display: flex;
+      gap: 8px;
+      background: #EEF3EF;
+      border: 1px solid #D7E4DA;
+      border-radius: 999px;
+      padding: 5px;
+    }
+
+    .listing-toggle button {
+      height: 42px;
+      padding: 0 18px;
+      border: none;
+      border-radius: 999px;
+      background: transparent;
+      color: #111;
+      font-weight: 800;
+      cursor: pointer;
+      transition: background .22s ease, color .22s ease, transform .22s ease;
+    }
+
+    .listing-toggle button:hover {
+      transform: translateY(-2px);
+      background: rgba(27,67,50,.10);
+    }
+
+    .listing-toggle button.active {
+      background: var(--green);
+      color: #fff;
+      box-shadow: 0 8px 20px rgba(27,67,50,.22);
+    }
+
+    .listing-list {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 26px;
+    }
+
+    .listing-card {
+      background: #fff;
+      border: 1px solid rgba(0,0,0,.06);
+      border-radius: 28px;
+      overflow: hidden;
+      box-shadow: 0 16px 46px rgba(0,0,0,.06);
+      cursor: pointer;
+      animation: cardReveal .65s ease both;
+      transition: transform .28s ease, box-shadow .28s ease, border-color .28s ease;
+    }
+
+    .listing-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 30px 80px rgba(0,0,0,.13);
+      border-color: rgba(27,67,50,.16);
+    }
+
+
+
+.listing-thumb{
+  position:relative;
+  width:100%;
+  height:230px;
+  background-size:cover;
+  background-position:center;
+  overflow:hidden;
+  border-radius:22px;
+}
+
+
+
+.price-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+}
+
+.mobile-detail-btn{
+  width:120px;
+  min-width:120px;
+  height:52px;
+  border-radius:18px !important;
+
+  display:flex !important;
+  align-items:center;
+  justify-content:center;
+
+  font-size:15px;
+  font-weight:900;
+}
+
+.listing-bottom .btn-wa{
+  width:100%;
+  height:58px;
+  border-radius:18px;
+  font-size:16px;
+}
+
+
+
+    .listing-thumb::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,.32), transparent 58%);
+      z-index: 1;
+    }
+
+    .listing-card:hover .listing-thumb {
+      transform: none;
+    }
+
+    .listing-labels {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      z-index: 3;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .label {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: 0 11px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .7px;
+      color: #1B4332;
+      background: rgba(234,223,203,.94);
+      text-transform: uppercase;
+    }
+
+    .label.hot {
+      background: #e53935;
+      color: #fff;
+    }
+
+    .listing-body {
+      padding: 24px;
+    }
+
+    .listing-price {
+      margin-bottom: 12px;
+      color: var(--green);
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: -0.8px;
+    }
+
+    .listing-title {
+      margin: 0 0 12px;
+      font-size: 22px;
+      line-height: 1.34;
+      letter-spacing: -.4px;
+      color: #111;
+    }
+
+    .listing-meta,
+    .listing-info,
+    .listing-agent {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .listing-type {
+      margin-top: 10px;
+      display: inline-flex;
+      width: fit-content;
+      min-height: 32px;
+      align-items: center;
+      padding: 0 12px;
+      border-radius: 999px;
+      background: #F1EEE7;
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .6px;
+    }
+
+    .listing-agent {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(0,0,0,.08);
+    }
+
+    .listing-bottom {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .listing-bottom a {
+      flex: 1;
+      height: 46px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 900;
+      transition: transform .22s ease, box-shadow .22s ease, background .22s ease;
+    }
+
+    .listing-bottom a:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 28px rgba(0,0,0,.14);
+    }
+
+    .btn-wa {
+      background: #25D366;
+      color: #fff;
+    }
+
+    .btn-gold {
+      background: var(--green);
+      color: #fff;
+    }
+
+    .empty-state {
+      display: none;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 26px;
+      padding: 34px;
+      text-align: center;
+      color: var(--muted);
+      box-shadow: 0 16px 46px rgba(0,0,0,.06);
+    }
+
+    @media (max-width: 1100px) {
+      .listing-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 700px) {
+      .container {
+        width: calc(100% - 24px);
+      }
+
+      .listings-hero {
+        min-height: 540px;
+      }
+
+      .hero-content {
+        padding: 140px 0 110px;
+      }
+
+      .listings-hero h1 {
+        letter-spacing: -1.7px;
+      }
+
+      .filter-row {
+        align-items: stretch;
+      }
+
+      .listing-toggle {
+        width: 100%;
+      }
+
+      .listing-toggle button {
+        flex: 1;
+        padding: 0 10px;
+        font-size: 13px;
+      }
+
+      .listing-list {
+        grid-template-columns: 1fr;
+      }
+
+      .listing-thumb {
+        height: 240px;
+      }
+
+      .listing-bottom {
+        flex-direction: column;
+      }
+
+      .listing-bottom a {
+        width: 100%;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body class="page-listing">
+
+<div id="site-header"></div>
+
+<section class="listings-hero">
+  <div class="container">
+    <div class="hero-content">
+      <div class="hero-tag">Residential Listings</div>
+
+      <h1 id="pageTitle">All Listings</h1>
+
+      <p id="seoText">
+        Browse residential property listings including condominiums, apartments,
+        terrace houses, bungalows and more across Kuala Lumpur and Selangor.
+      </p>
+    </div>
+  </div>
+</section>
+
+<main class="listing-panel">
+  <div class="container">
+
+    <div class="filter-card">
+      <div class="filter-row">
+        <div>
+          <div style="font-size:13px;color:#666;margin-bottom:4px;">
+            Home › <span id="crumbLabel">All Listings</span>
+          </div>
+          <div class="results-text" id="resultsText">Loading listings...</div>
+        </div>
+
+        <div class="listing-toggle" id="listingTypeFilter">
+          <button data-value="" class="active">All</button>
+          <button data-value="sale">For Sale</button>
+          <button data-value="rent">For Rent</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="listing-list" id="listingList"></div>
+    <div class="empty-state" id="emptyState">No listings found.</div>
+
+  </div>
+</main>
+
+<div id="site-footer"></div>
+
+<script type="module" src="/shared-layout.js?v=70"></script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import {
+    getFirestore,
+    collection,
+    getDocs
+  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBKO4RNc5r8GoPHQyRHdUllLVwtXFNJyVo",
+    authDomain: "residentialpropertykl.firebaseapp.com",
+    projectId: "residentialpropertykl",
+    storageBucket: "residentialpropertykl.firebasestorage.app",
+    messagingSenderId: "952845303526",
+    appId: "1:952845303526:web:7b604dca11ad50a93bc527",
+    measurementId: "G-DV21X2EGJ0"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const listingList = document.getElementById("listingList");
+  const emptyState = document.getElementById("emptyState");
+  const resultsText = document.getElementById("resultsText");
+  const listingTypeFilter = document.getElementById("listingTypeFilter");
+
+  const pageTitle = document.getElementById("pageTitle");
+  const crumbLabel = document.getElementById("crumbLabel");
+  const seoText = document.getElementById("seoText");
+  const canonicalLink = document.getElementById("canonicalLink");
+  const metaDesc = document.querySelector('meta[name="description"]');
+
+  let allItems = [];
+  let baseFilteredItems = [];
+
+  function slugToType(slug) {
+    const map = {
+      "condominium": "Condominium",
+      "apartment": "Apartment",
+      "terrace-house": "Terrace House",
+      "semi-detached-house": "Semi-Detached House",
+      "bungalow": "Bungalow",
+      "townhouse": "Townhouse",
+      "soho": "SOHO",
+      "all-listings": "All Listings"
+    };
+
+    return map[slug] || "All Listings";
+  }
+
+  function getFiltersFromURL() {
+    let path = window.location.pathname.replace(/^\/|\/$/g, "");
+
+    if (path.startsWith("categories/")) {
+      path = path.replace("categories/", "");
+    }
+
+    if (!path || path === "listings.html") {
+      return { type: null, listingType: null, location: null, area: null };
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const area = params.get("area") || params.get("city");
+
+    const simpleTypes = [
+      "all-listings",
+      "condominium",
+      "apartment",
+      "terrace-house",
+      "semi-detached-house",
+      "bungalow",
+      "townhouse",
+      "soho"
+    ];
+
+    if (simpleTypes.includes(path)) {
+      return {
+        type: path === "all-listings" ? null : path,
+        listingType: null,
+        location: null,
+        area
+      };
+    }
+
+    const saleMarker = "-for-sale-";
+    const rentMarker = "-for-rent-";
+
+    if (path.includes(saleMarker)) {
+      const [type, location] = path.split(saleMarker);
+      return { type, listingType: "sale", location, area };
+    }
+
+    if (path.includes(rentMarker)) {
+      const [type, location] = path.split(rentMarker);
+      return { type, listingType: "rent", location, area };
+    }
+
+    return { type: null, listingType: null, location: null, area };
+  }
+
+  function normalizeType(value) {
+    return (value || "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+  }
+
+  function normalizeText(value) {
+    return (value || "").toLowerCase().trim();
+  }
+
+  function formatPrice(price) {
+    if (!price) return "Price on request";
+
+    const num = Number(String(price).replace(/[^\d.]/g, ""));
+
+    if (!Number.isNaN(num) && num > 0) {
+      if (num >= 1000000) return `RM ${(num / 1000000).toFixed(num % 1000000 === 0 ? 0 : 1)}M`;
+      if (num >= 1000) return `RM ${num.toLocaleString()}`;
+      return `RM ${num.toLocaleString()}`;
+    }
+
+    return String(price);
+  }
+
+  function formatPostedDate(timestamp) {
+    if (!timestamp) return "Recently";
+
+    let raw = 0;
+
+    if (typeof timestamp?.toDate === "function") {
+      raw = timestamp.toDate().getTime();
+    } else if (timestamp?.seconds) {
+      raw = timestamp.seconds * 1000;
+    } else {
+      raw = Number(timestamp);
+    }
+
+    if (!raw) return "Recently";
+
+    const diffDays = Math.floor((Date.now() - raw) / (1000 * 60 * 60 * 24));
+
+    if (diffDays <= 0) return "Today";
+    if (diffDays === 1) return "1 day ago";
+    if (diffDays < 30) return `${diffDays} days ago`;
+
+    return new Date(raw).toLocaleDateString("en-MY");
+  }
+
+  function getSortTime(value) {
+    if (!value) return 0;
+    if (typeof value?.toDate === "function") return value.toDate().getTime();
+    if (value?.seconds) return value.seconds * 1000;
+    if (typeof value === "number") return value;
+    const parsed = new Date(value).getTime();
+    return Number.isNaN(parsed) ? 0 : parsed;
+  }
+
+  function generateSlug(title) {
+    return (title || "listing")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+  }
+
+  function renderListings(items) {
+    listingList.innerHTML = "";
+
+    if (!items.length) {
+      emptyState.style.display = "block";
+      resultsText.textContent = "Showing 0 listings";
+      return;
+    }
+
+    emptyState.style.display = "none";
+    resultsText.textContent = `Showing ${items.length} listing${items.length > 1 ? "s" : ""}`;
+
+    items.forEach((item, index) => {
+      const card = document.createElement("article");
+      card.className = "listing-card";
+      card.style.animationDelay = `${Math.min(index * 0.06, 0.42)}s`;
+
+const slug = item.slug || generateSlug(item.title);
+const detailUrl = `/listing/${slug}-${item.id}`;
+      card.dataset.link = detailUrl;
+
+      const label1 = item.listingType === "rent" ? "FOR RENT" : "FOR SALE";
+      const hotLabel = item.hotOffer ? `<span class="label hot">HOT OFFER</span>` : "";
+
+card.innerHTML = `
+<div class="listing-thumb"
+  style="background-image:url('${item.image || "/images/hero-residential-green.jpg"}')">
+
+  <div class="watermark-box">
+    <span class="watermark-text">RESIDENTIAL PROPERTY KL</span>
+  </div>
+
+  <div class="listing-labels">
+    <span class="label">${label1}</span>
+    ${hotLabel}
+  </div>
+</div>
+
+  <div class="listing-body">
+
+<div class="price-row">
+
+  <div class="listing-price">
+    ${formatPrice(item.price)}
+  </div>
+
+  <a class="btn-gold mobile-detail-btn" href="${detailUrl}">
+    Details
+  </a>
+
+</div>
+
+    <h2 class="listing-title">${item.title || "-"}</h2>
+
+    <div class="listing-meta">
+      ${item.location || "-"}${item.city ? `, ${item.city}` : ""}
+    </div>
+
+    <div class="listing-info">
+      <strong>Built-up:</strong> ${item.bua || "-"}
+    </div>
+
+    <div class="listing-type">${item.type || "-"}</div>
+
+    <div class="listing-agent">
+      Residential Property KL Group •
+      ${formatPostedDate(item.postedAt || item.createdAt)}
+    </div>
+
+    <div class="listing-bottom">
+      <a class="btn-wa"
+        href="https://wa.me/${item.agentPhone ? String(item.agentPhone).replace(/\D/g, "") : "60166287357"}?text=${encodeURIComponent(`Hi, I am interested in ${item.title || "this listing"}.`)}"
+        target="_blank"
+        rel="noopener noreferrer">
+        WhatsApp
+      </a>
+    </div>
+
+  </div>
+`;
+
+      listingList.appendChild(card);
+
+      card.addEventListener("click", function (e) {
+        if (e.target.closest("a, button")) return;
+        window.location.href = card.dataset.link;
+      });
+    });
+  }
+
+  function updatePageText(type, listingType, location, area) {
+    if (type && listingType && location) {
+      const niceType = slugToType(type);
+      const niceIntent = listingType === "rent" ? "Rent" : "Sale";
+      const niceLocation = location
+        .split("-")
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ");
+
+      const titleText = `${niceType} for ${niceIntent} in ${niceLocation}`;
+
+      pageTitle.textContent = titleText;
+      crumbLabel.textContent = titleText;
+      document.title = `${titleText} | Residential Property KL`;
+      seoText.textContent = `Explore ${niceType.toLowerCase()} for ${niceIntent.toLowerCase()} in ${niceLocation}. Browse the latest residential property listings in ${niceLocation}.`;
+
+      if (metaDesc) {
+        metaDesc.setAttribute("content", `Browse ${niceType.toLowerCase()} for ${niceIntent.toLowerCase()} in ${niceLocation}. View the latest residential property listings in ${niceLocation}.`);
+      }
+
+      return;
+    }
+
+    if (area) {
+      const titleText = `Properties in ${area}`;
+      pageTitle.textContent = titleText;
+      crumbLabel.textContent = titleText;
+      document.title = `${titleText} | Residential Property KL`;
+      seoText.textContent = `Browse residential property listings in ${area}, including condominiums, apartments, landed homes and new project options.`;
+      return;
+    }
+
+    if (type) {
+      const niceType = slugToType(type);
+      pageTitle.textContent = niceType;
+      crumbLabel.textContent = niceType;
+      document.title = `${niceType} | Residential Property KL`;
+      seoText.textContent = `Browse ${niceType.toLowerCase()} listings in Kuala Lumpur and Selangor.`;
+      return;
+    }
+
+    pageTitle.textContent = "All Listings";
+    crumbLabel.textContent = "All Listings";
+    document.title = "All Listings | Residential Property KL";
+    seoText.textContent = "Browse residential property listings including condominiums, apartments, terrace houses, bungalows and more in Kuala Lumpur and Selangor.";
+  }
+
+  function applyToggleFilter(selected) {
+    let filtered = [...baseFilteredItems];
+
+    if (selected) {
+      filtered = filtered.filter(item =>
+        normalizeText(item.listingType) === selected
+      );
+    }
+
+    renderListings(filtered);
+  }
+
+  async function loadListings() {
+    const { type, listingType, location, area } = getFiltersFromURL();
+
+    updatePageText(type, listingType, location, area);
+
+    try {
+      const snapshot = await getDocs(collection(db, "listings"));
+      const items = [];
+
+      snapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+
+        items.push({
+          id: docSnap.id,
+          ...data
+        });
+      });
+
+      let filtered = [...items];
+
+      if (type) {
+        filtered = filtered.filter(item =>
+          normalizeType(item.type) === type
+        );
+      }
+
+      if (listingType) {
+        filtered = filtered.filter(item =>
+          normalizeText(item.listingType) === listingType
+        );
+      }
+
+      if (location) {
+        filtered = filtered.filter(item =>
+          normalizeText(item.city).includes(location) ||
+          normalizeText(item.location).includes(location)
+        );
+      }
+
+      if (area) {
+        filtered = filtered.filter(item => {
+          const haystack = [
+            item.area,
+            item.city,
+            item.location,
+            item.address,
+            item.state
+          ].join(" ").toLowerCase();
+
+          return haystack.includes(area.toLowerCase());
+        });
+      }
+
+      filtered.sort((a, b) => getSortTime(b.createdAt || b.postedAt) - getSortTime(a.createdAt || a.postedAt));
+
+      allItems = items;
+      baseFilteredItems = filtered;
+
+      renderListings(baseFilteredItems);
+
+      const toggleButtons = document.querySelectorAll("#listingTypeFilter button");
+
+      toggleButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+          toggleButtons.forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          applyToggleFilter(btn.dataset.value);
+        });
+      });
+
+    } catch (error) {
+      console.error(error);
+      resultsText.textContent = "Failed to load listings";
+      emptyState.style.display = "block";
+      emptyState.textContent = "Unable to load listings.";
+    }
+  }
+
+  loadListings();
+</script>
+
+<div id="floating-nav-placeholder"></div>
+
+<script>
+  fetch("/floating-nav.html")
+    .then(res => res.text())
+    .then(html => {
+      document.getElementById("floating-nav-placeholder").innerHTML = html;
+
+      const btn = document.getElementById("navFloatBtn");
+      const menu = document.getElementById("floatNavMenu");
+      const waMenu = document.getElementById("waSlideMenu");
+
+      if (btn && menu && waMenu) {
+        btn.addEventListener("click", () => {
+          menu.classList.toggle("hidden");
+          waMenu.classList.toggle("show");
+        });
+      }
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,180 @@
+<style>
+#navFloatBtn {
+  position: fixed !important;
+  right: 16px !important;
+  bottom: 16px !important;
+  z-index: 2147483647 !important;
+
+  width: 64px !important;
+  height: 54px !important;
+  border-radius: 14px !important;
+  border: 1px solid rgba(255,255,255,0.16) !important;
+
+  background: rgba(10,16,14,0.86) !important;
+  backdrop-filter: blur(18px) !important;
+  -webkit-backdrop-filter: blur(18px) !important;
+
+  color: #fff !important;
+  font-size: 24px !important;
+  font-weight: 800 !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  box-shadow: 0 16px 42px rgba(0,0,0,0.26) !important;
+  cursor: pointer !important;
+
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+}
+
+#navFloatBtn:hover {
+  transform: translateY(-4px);
+  background: rgba(27,67,50,0.92) !important;
+  box-shadow: 0 22px 55px rgba(0,0,0,0.32) !important;
+}
+
+#navFloatBtn:active {
+  transform: translateY(-1px) scale(0.96);
+}
+
+#floatNavMenu {
+  position: fixed !important;
+  right: 16px !important;
+  bottom: 84px !important;
+  z-index: 2147483647 !important;
+
+  width: 260px !important;
+
+  background: rgba(10,16,14,0.84) !important;
+  backdrop-filter: blur(22px) !important;
+  -webkit-backdrop-filter: blur(22px) !important;
+
+  border: 1px solid rgba(255,255,255,0.14) !important;
+  border-radius: 18px !important;
+
+  box-shadow: 0 24px 70px rgba(0,0,0,0.34) !important;
+  overflow: hidden !important;
+
+  transform-origin: bottom right;
+  animation: floatMenuIn 0.25s ease both;
+}
+
+#floatNavMenu.hidden {
+  display: none !important;
+}
+
+@keyframes floatMenuIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+#floatNavMenu a {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+
+  padding: 16px 18px !important;
+
+  color: rgba(255,255,255,0.92) !important;
+  font-size: 14px !important;
+  font-weight: 800 !important;
+
+  border-bottom: 1px solid rgba(255,255,255,0.10) !important;
+  transition: background 0.22s ease, padding-left 0.22s ease;
+}
+
+#floatNavMenu a::after {
+  content: "›";
+  opacity: 0.55;
+  font-size: 18px;
+}
+
+#floatNavMenu a:hover {
+  background: rgba(255,255,255,0.10) !important;
+  padding-left: 24px !important;
+}
+
+#floatNavMenu a:last-child {
+  border-bottom: none !important;
+}
+
+#waSlideMenu {
+  position: fixed !important;
+  right: 88px !important;
+  bottom: 16px !important;
+  z-index: 2147483647 !important;
+
+  width: 190px !important;
+  height: 54px !important;
+
+  background: #25D366 !important;
+  border-radius: 14px !important;
+
+  box-shadow: 0 16px 42px rgba(0,0,0,0.24) !important;
+
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(30px);
+  transition: all 0.28s ease;
+}
+
+#waSlideMenu.show {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(0);
+}
+
+#waSlideMenu a {
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  color: #fff !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+  text-decoration: none !important;
+}
+
+@media (max-width: 640px) {
+  #floatNavMenu {
+    right: 12px !important;
+    bottom: 78px !important;
+    width: calc(100vw - 24px) !important;
+    border-radius: 16px !important;
+  }
+
+  #navFloatBtn {
+    right: 12px !important;
+    bottom: 12px !important;
+  }
+
+  #waSlideMenu {
+    right: 88px !important;
+    bottom: 12px !important;
+    width: 170px !important;
+  }
+}
+</style>
+
+<button id="navFloatBtn" type="button">☰</button>
+
+<div id="floatNavMenu" class="hidden">
+  <a href="/index.html">Home</a>
+  <a href="/about.html">About</a>
+  <a href="/categories/all-listings">Properties</a>
+  <a href="/projects.html">New Projects</a>
+  <a href="/blog.html">Blog</a>
+  <a href="/contact.html">Contact</a>
+</div>
+
+<div id="waSlideMenu">
+  <a href="https://wa.me/60166287357" target="_blank">WhatsApp Us</a>
+</div>
