@@ -600,18 +600,32 @@
         border-radius: 26px;
       }
 
-      .card,
-      .agent-card {
-        padding: 24px;
-      }
+.card,
+.agent-card {
+  padding: 24px;
+}
 
-      .gallery-card {
-        padding: 0;
-      }
+.gallery-card {
+  padding: 0 !important;
+  overflow: hidden;
+}
 
-      .main-image {
-        height: 360px;
-      }
+.gallery-card .main-image-wrap {
+  border-radius: 26px 26px 0 0;
+  overflow: hidden;
+}
+
+.gallery-card .thumbs {
+  padding: 14px;
+  border-radius: 0 0 26px 26px;
+}
+
+.main-image {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+}
 
       .map-frame {
         height: 320px;
@@ -659,6 +673,268 @@
     border-radius: 10px;
   }
 }
+
+.hero-square-watermark {
+  position: absolute;
+
+  top: 42%;
+  left: 50%;
+
+  transform: translate(-50%, -50%);
+
+  z-index: 2;
+  pointer-events: none;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+
+  background: rgba(255,255,255,0.06);
+
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  border: 1px solid rgba(255,255,255,0.12);
+
+  box-shadow:
+    0 10px 35px rgba(0,0,0,0.22),
+    inset 0 1px 1px rgba(255,255,255,0.08);
+}
+
+.hero-square-watermark span {
+  color: rgba(255,255,255,0.92);
+
+  font-size: 22px;
+  font-weight: 500;
+
+  letter-spacing: 1.2px;
+  line-height: 1.5;
+}
+
+@media (min-width: 821px) {
+  .hero-square-watermark {
+    width: 260px;
+    height: 260px;
+  }
+}
+
+@media (max-width: 820px) {
+  .hero-square-watermark {
+    width: 140px;
+    height: 140px;
+  }
+
+  .hero-square-watermark span {
+    font-size: 12px;
+  }
+}
+
+.thumb-wrap {
+  position: relative;
+}
+
+.listing-square-watermark {
+  position: absolute;
+
+  top: 50%;
+  left: 50%;
+
+  transform: translate(-50%, -50%);
+
+  width: 140px;
+  height: 140px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+
+  background: rgba(255,255,255,0.06);
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  border: 1px solid rgba(255,255,255,0.12);
+
+  box-shadow:
+    0 10px 30px rgba(0,0,0,0.22),
+    inset 0 1px 1px rgba(255,255,255,0.08);
+
+  z-index: 5;
+  pointer-events: none;
+}
+
+.listing-square-watermark::after {
+  content: "RESIDENTIAL\A PROPERTY KL";
+
+  white-space: pre;
+
+  color: rgba(255,255,255,0.92);
+
+  font-size: 16px;
+  font-weight: 500;
+
+  letter-spacing: 1px;
+  line-height: 1.5;
+}
+
+.thumb-square-watermark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  width: 42px;
+  height: 42px;
+
+  background: rgba(255,255,255,0.10);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+
+  border: 1px solid rgba(255,255,255,0.14);
+  z-index: 5;
+  pointer-events: none;
+}
+
+.thumb-wrap {
+  position: relative;
+
+  width: 72px;
+  min-width: 72px;
+
+  border-radius: 14px;
+  overflow: hidden;
+
+  flex-shrink: 0;
+}
+
+.thumb-wrap img {
+  width: 100%;
+  height: auto;
+
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+
+  display: block;
+}
+
+@media (max-width: 820px) {
+  .listing-square-watermark {
+    width: 120px !important;
+    height: 120px !important;
+
+    top: 50%;
+    left: 50%;
+
+    transform: translate(-50%, -50%);
+
+    background: rgba(255,255,255,0.10) !important;
+
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+  }
+
+  .listing-square-watermark::after {
+    font-size: 14px !important;
+    line-height: 1.6 !important;
+    letter-spacing: 1.2px !important;
+  }
+}
+
+@media (max-width: 700px) {
+  .main-image-wrap {
+    height: auto !important;
+    max-height: none !important;
+  }
+
+  .main-image {
+    width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    aspect-ratio: auto !important;
+    object-fit: contain !important;
+    object-position: center center !important;
+    transform: none !important;
+  }
+
+  .main-image-wrap:hover .main-image {
+    transform: none !important;
+  }
+
+  .gallery-card {
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+}
+
+@media (max-width: 820px) {
+  .content-grid {
+    display: block !important;
+  }
+
+  .gallery-card {
+    padding: 0 !important;
+    border-radius: 26px !important;
+    overflow: hidden !important;
+  }
+
+.main-image-wrap {
+  width: 100% !important;
+  height: 520px !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  background: #f5f5f5 !important;
+
+  overflow: hidden !important;
+}
+
+.main-image {
+  width: 100% !important;
+  height: 100% !important;
+
+  object-fit: cover !important;
+  object-position: center center !important;
+
+  transition: opacity 0.2s ease !important;
+}
+
+  .main-image-wrap:hover .main-image {
+    transform: none !important;
+  }
+
+  .thumbs {
+    display: flex !important;
+    gap: 12px !important;
+    padding: 14px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    background: #fff !important;
+  }
+
+  .thumb-wrap {
+    width: 86px !important;
+    min-width: 86px !important;
+    height: 86px !important;
+    flex: 0 0 86px !important;
+    border-radius: 16px !important;
+    overflow: hidden !important;
+  }
+
+  .thumb-wrap img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center center !important;
+  }
+}
+
+
   </style>
 </head>
 
@@ -915,16 +1191,22 @@ const data = snap.data();
 
       const whatsappLink = `https://wa.me/${phone}?text=${whatsappText}`;
 
-      const thumbsHtml = gallery.map((img, index) => `
-        <img
-          src="${img}"
-          alt="Thumbnail ${index + 1}"
-          class="${index === 0 ? "active" : ""}"
-          loading="${index === 0 ? "eager" : "lazy"}"
-          decoding="async"
-          onclick="changeMainImage('${img.replace(/'/g, "\\'")}', this)"
-        >
-      `).join("");
+const thumbsHtml = gallery.map((img, index) => `
+  <div class="thumb-wrap">
+
+    <img
+      src="${img}"
+      alt="Thumbnail ${index + 1}"
+      class="${index === 0 ? "active" : ""}"
+      loading="${index === 0 ? "eager" : "lazy"}"
+      decoding="async"
+      onclick="changeMainImage('${img.replace(/'/g, "\\'")}', this)"
+    >
+
+
+
+  </div>
+`).join("");
 
       appDiv.className = "";
       appDiv.innerHTML = `
@@ -932,7 +1214,12 @@ const data = snap.data();
           <div class="listing-hero-bg" style="background-image:url('${mainImage}')"></div>
           <div class="listing-hero-overlay"></div>
 
-<div class="hero-center-watermark">
+${data.watermarkType === "watermark2"
+  ? `<div class="hero-square-watermark">
+  <span>RESIDENTIAL<br>PROPERTY KL</span>
+</div>`
+  : `<div class="hero-center-watermark watermark-text"><span></span></div>`
+}
 </div>
 
           <div class="container hero-inner">
@@ -994,13 +1281,28 @@ const data = snap.data();
               <div>
 
                 <section class="card gallery-card">
-                  <div class="main-image-wrap">
-                    <img id="mainImage" class="main-image" src="${mainImage}" alt="${safeTitle}" fetchpriority="high" decoding="async">
 
-                    <div class="watermark-box">
-                      <span class="watermark-text">RESIDENTIAL PROPERTY KL</span>
-                    </div>
-                  </div>
+<div class="main-image-wrap">
+
+  <img
+    id="mainImage"
+    class="main-image"
+    src="${mainImage}"
+    alt="${safeTitle}"
+    fetchpriority="high"
+    decoding="async"
+  >
+
+  ${data.watermarkType === "watermark2"
+    ? `<div class="listing-square-watermark"></div>`
+    : `
+      <div class="watermark-box">
+        <span class="watermark-text">RESIDENTIAL PROPERTY KL</span>
+      </div>
+    `
+  }
+
+</div>
 
                   ${gallery.length > 1 ? `<div class="thumbs">${thumbsHtml}</div>` : ""}
                 </section>
