@@ -479,6 +479,11 @@
             <option value="false">Normal Listing</option>
             <option value="true">Hot Offer</option>
           </select>
+
+<select id="watermarkType">
+  <option value="watermark1">Watermark 1 - Long rectangular</option>
+  <option value="watermark2">Watermark 2 - Squared</option>
+</select>
         </div>
 
 <div class="grid-2" id="sourceAgentRow" style="display:none;">
@@ -1317,6 +1322,7 @@ type: getField("type"),
         description: getField("description"),
         status: getField("status") || "active",
         hotOffer: document.getElementById("hotOffer").value === "true",
+        watermarkType: document.getElementById("watermarkType").value || "watermark1",
 
         listingOwner: profile.role === "master" ? "main" : "agent",
         agentId: profile.agentId,
@@ -1357,6 +1363,9 @@ type: getField("type"),
       existingAgentImageUrl = "";
       existingGalleryUrls = [];
 
+
+
+      document.getElementById("watermarkType").value = "watermark1";
       document.getElementById("listingType").value = "sale";
       document.getElementById("type").value = "Condominium";
       document.getElementById("title").value = "";
@@ -1426,6 +1435,8 @@ document.getElementById("sourceAgentRow").style.display = "none";
       existingImageUrl = item.image || "";
       existingAgentImageUrl = item.agentImage || "";
       existingGalleryUrls = Array.isArray(item.gallery) ? item.gallery : [];
+
+      document.getElementById("watermarkType").value = item.watermarkType || "watermark1";
 
       document.getElementById("type").value = item.type || "Condominium";
       document.getElementById("listingType").value = item.listingType || "sale";

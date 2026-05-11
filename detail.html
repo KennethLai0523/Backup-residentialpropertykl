@@ -654,12 +654,12 @@
 
 @media (min-width: 821px) {
   .hero-center-watermark {
-    top: 470px;
+    top: 420px;
 
-    width: 1300px;
-    height: 62px;
+    width: 1500px;
+    height: 110px;
 
-    border-radius: 14px;
+    border-radius: 16px;
   }
 }
 
@@ -667,10 +667,10 @@
   .hero-center-watermark {
     bottom: 300px;
 
-    width: 400px;
-    height: 42px;
+    width: 680px;
+    height: 100px;
 
-    border-radius: 10px;
+    border-radius: 12px;
   }
 }
 
@@ -933,7 +933,29 @@
     object-position: center center !important;
   }
 }
+@media (max-width: 820px) {
+  .watermark-box {
+    width: 400px !important;
+  }
 
+  .watermark-text {
+    font-size: 14px !important;
+    letter-spacing: 0.8px !important;
+  }
+}
+
+@media (min-width: 821px) {
+  .listing-square-watermark {
+    width: 220px !important;
+    height: 220px !important;
+  }
+
+  .listing-square-watermark::after {
+    font-size: 22px !important;
+    letter-spacing: 1.4px !important;
+    line-height: 1.7 !important;
+  }
+}
 
   </style>
 </head>

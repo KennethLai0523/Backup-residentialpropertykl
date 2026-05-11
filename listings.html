@@ -300,6 +300,61 @@
       z-index: 1;
     }
 
+.listing-square-watermark-card {
+  position: absolute;
+
+  top: 42%;
+  left: 50%;
+
+  transform: translate(-50%, -50%);
+
+  z-index: 3;
+  pointer-events: none;
+
+  width: 110px;
+  height: 110px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+
+  background: rgba(255,255,255,0.06);
+
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  border: 1px solid rgba(255,255,255,0.12);
+
+  box-shadow:
+    0 10px 35px rgba(0,0,0,0.22),
+    inset 0 1px 1px rgba(255,255,255,0.08);
+}
+
+.listing-square-watermark-card span {
+  color: rgba(255,255,255,0.92);
+
+  font-size: 11px;
+  font-weight: 600;
+
+  letter-spacing: 1px;
+  line-height: 1.5;
+}
+
+@media (max-width: 820px) {
+  .listing-square-watermark-card {
+    width: 88px;
+    height: 88px;
+  }
+
+  .listing-square-watermark-card span {
+    font-size: 8px;
+    letter-spacing: 0.6px;
+    line-height: 1.4;
+  }
+}
+
     .listing-card:hover .listing-thumb {
       transform: none;
     }
@@ -487,6 +542,8 @@
         transition: none !important;
       }
     }
+
+
   </style>
 </head>
 
@@ -743,9 +800,18 @@ card.innerHTML = `
 <div class="listing-thumb"
   style="background-image:url('${item.image || "/images/hero-residential-green.webp"}')">
 
-  <div class="watermark-box">
-    <span class="watermark-text">RESIDENTIAL PROPERTY KL</span>
-  </div>
+  ${item.watermarkType === "watermark2"
+    ? `
+      <div class="listing-square-watermark-card">
+        <span>RESIDENTIAL<br>PROPERTY KL</span>
+      </div>
+    `
+    : `
+      <div class="watermark-box">
+        <span class="watermark-text">RESIDENTIAL PROPERTY KL</span>
+      </div>
+    `
+  }
 
   <div class="listing-labels">
     <span class="label">${label1}</span>
