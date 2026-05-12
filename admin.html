@@ -357,6 +357,23 @@
         min-width: 0;
       }
     }
+
+.reminder-row {
+  border: 1px solid #eee;
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+  background: #fff;
+}
+
+.reminder-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
   </style>
 </head>
 <body>
@@ -370,6 +387,7 @@
       <button class="tab-btn active" data-tab="listingsTab">Listings</button>
       <button class="tab-btn" data-tab="projectsTab">Projects</button>
       <button class="tab-btn" data-tab="blogTab">Blog</button>
+      <button class="tab-btn" data-tab="reminderTab">Reminder</button>
     </div>
 
     <div class="tab-panel active" id="listingsTab">
@@ -662,7 +680,35 @@
         <div class="blogs-wrap" id="blogList"></div>
       </div>
     </div>
+
+<div class="tab-panel" id="reminderTab">
+  <div class="card">
+    <h2 id="reminderFormTitle">Reminder</h2>
+
+    <textarea
+      id="reminderText"
+      class="editor-large"
+      placeholder="Write your reminder here..."
+    ></textarea>
+
+    <div class="inline-actions">
+      <button class="btn" id="saveReminderBtn" type="button">Save Reminder</button>
+      <button class="btn btn-light" id="cancelReminderEditBtn" type="button" style="display:none;">Cancel Edit</button>
+    </div>
+
+    <div class="status-text" id="reminderStatus"></div>
   </div>
+
+  <div class="card">
+    <h2>Saved Reminders</h2>
+    <div class="blogs-wrap" id="reminderList"></div>
+  </div>
+</div>
+
+
+  </div>
+
+
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -871,6 +917,15 @@ async function loadDevelopers() {
     const editBanner = document.getElementById("editBanner");
     const agentImageInput = null;
     const galleryInput = document.getElementById("galleryInput");
+
+const reminderText = document.getElementById("reminderText");
+const saveReminderBtn = document.getElementById("saveReminderBtn");
+const cancelReminderEditBtn = document.getElementById("cancelReminderEditBtn");
+const reminderList = document.getElementById("reminderList");
+const reminderStatus = document.getElementById("reminderStatus");
+const reminderFormTitle = document.getElementById("reminderFormTitle");
+
+let editingReminderId = null;
 
     const blogDropZone = document.getElementById("blogDropZone");
     const blogFileInput = document.getElementById("blogFileInput");
@@ -1973,6 +2028,115 @@ developerSlug: developer.slug,
   }
 }
 
+function setReminderStatus(text, color = "#111") {
+  reminderStatus.textContent = text;
+  reminderStatus.style.color = color;
+}
+
+function resetReminderForm() {
+  editingReminderId = null;
+  reminderText.value = "";
+  reminderFormTitle.textContent = "Reminder";
+  saveReminderBtn.textContent = "Save Reminder";
+  cancelReminderEditBtn.style.display = "none";
+  setReminderStatus("");
+}
+
+function setReminderEditMode(item, id) {
+  editingReminderId = id;
+  reminderText.value = item.text || "";
+  reminderFormTitle.textContent = "Edit Reminder";
+  saveReminderBtn.textContent = "Update Reminder";
+  cancelReminderEditBtn.style.display = "inline-block";
+  setReminderStatus("Editing reminder.", "#8a6500");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+async function saveReminder() {
+  const text = reminderText.value.trim();
+
+  if (!text) {
+    setReminderStatus("Please write a reminder first.", "red");
+    return;
+  }
+
+  saveReminderBtn.disabled = true;
+  setReminderStatus(editingReminderId ? "Updating reminder..." : "Saving reminder...", "#333");
+
+  try {
+    const data = {
+      text,
+      updatedAt: Date.now()
+    };
+
+    if (editingReminderId) {
+      await updateDoc(doc(db, "reminders", editingReminderId), data);
+      setReminderStatus("Reminder updated successfully.", "green");
+    } else {
+      await addDoc(collection(db, "reminders"), {
+        ...data,
+        createdAt: Date.now()
+      });
+      setReminderStatus("Reminder saved successfully.", "green");
+    }
+
+    resetReminderForm();
+    await loadReminders();
+
+  } catch (error) {
+    console.error(error);
+    setReminderStatus("Failed to save reminder.", "red");
+  } finally {
+    saveReminderBtn.disabled = false;
+  }
+}
+
+async function loadReminders() {
+  reminderList.innerHTML = "Loading...";
+
+  try {
+    const q = query(collection(db, "reminders"), orderBy("updatedAt", "desc"));
+    const snapshot = await getDocs(q);
+
+    if (snapshot.empty) {
+      reminderList.innerHTML = "<div class='muted'>No reminders yet.</div>";
+      return;
+    }
+
+    reminderList.innerHTML = "";
+
+    snapshot.forEach((docSnap) => {
+      const item = docSnap.data();
+
+      const row = document.createElement("div");
+      row.className = "reminder-row";
+
+      row.innerHTML = `
+        <div>
+          <div class="blog-title">Reminder</div>
+          <div class="blog-meta" style="white-space:pre-line;">
+            ${item.text || "-"}
+          </div>
+        </div>
+
+        <div class="reminder-actions">
+          <button class="btn btn-sm btn-light reminder-edit-btn">Edit</button>
+        </div>
+      `;
+
+      row.querySelector(".reminder-edit-btn").addEventListener("click", () => {
+        setReminderEditMode(item, docSnap.id);
+      });
+
+      reminderList.appendChild(row);
+    });
+
+  } catch (error) {
+    console.error(error);
+    reminderList.innerHTML = "<div class='muted'>Failed to load reminders.</div>";
+  }
+}
+
     function setupTabs() {
       const tabButtons = document.querySelectorAll(".tab-btn");
       const tabPanels = document.querySelectorAll(".tab-panel");
@@ -2012,6 +2176,7 @@ onAuthStateChanged(auth, async (user) => {
 
   currentUser = user;
 
+  await loadReminders();
   await loadListings();
   await loadBlogs();
   await loadDevelopers();
@@ -2165,6 +2330,9 @@ galleryDropZone.addEventListener("drop", (e) => {
     saveBlogBtn.addEventListener("click", saveBlog);
     cancelBlogEditBtn.addEventListener("click", resetBlogForm);
     saveProjectBtn.addEventListener("click", saveProject);
+
+    saveReminderBtn.addEventListener("click", saveReminder);
+cancelReminderEditBtn.addEventListener("click", resetReminderForm);
 
 saveDeveloperBtn.addEventListener("click", saveDeveloper);
 addProjectSectionBtn.addEventListener("click", () => {
