@@ -352,13 +352,29 @@ const db = getFirestore(app);
       return Number(listing.longitude || listing.lng || 0);
     }
 
-    function getZoneName(listing) {
+    function normalizeZoneName(listing) {
+      const text = [
+        listing.title,
+        listing.location,
+        listing.address,
+        listing.city,
+        listing.area
+      ].filter(Boolean).join(" ").toLowerCase();
+
+      if (text.includes("mont kiara") || text.includes("montkiara") || text.includes("solaris")) {
+        return "Mont Kiara";
+      }
+
       return (
         listing.location ||
         listing.city ||
         listing.area ||
         "Unknown Area"
       ).trim();
+    }
+
+    function getZoneName(listing) {
+      return normalizeZoneName(listing);
     }
 
     function escapeHtml(str) {
@@ -371,7 +387,7 @@ const db = getFirestore(app);
 
     async function loadZonePolygons(zoneStats) {
       try {
-        const geojson = await fetch("/map/montkiara.geojson").then((res) => res.json());
+        const geojson = await fetch("/map/kl-parlimen.geojson").then((res) => res.json());
         console.log("Loaded GeoJSON zones:", geojson);
 
         if (zonePolygonsLayer) {
@@ -386,9 +402,9 @@ const db = getFirestore(app);
 
             return {
               color: "#ff00cc",
-              weight: 4,
+              weight: 3,
               fillColor: stats ? getPsfColor(stats.avgPsf) : "#ffcc00",
-              fillOpacity: stats ? 0.45 : 0.35
+              fillOpacity: stats ? 0.45 : 0.4
             };
           },
 
@@ -420,8 +436,13 @@ const db = getFirestore(app);
         }).addTo(map);
 
         zonePolygonsLayer.bringToFront();
+
+        const zoneBounds = zonePolygonsLayer.getBounds();
+        if (zoneBounds.isValid()) {
+          map.fitBounds(zoneBounds, { padding: [36, 36], maxZoom: 12 });
+        }
       } catch (error) {
-        console.error("Failed to load /map/montkiara.geojson:", error);
+        console.error("Failed to load /map/kl-parlimen.geojson:", error);
       }
     }
 

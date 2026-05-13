@@ -1,0 +1,75 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": { "name": "Petaling Jaya" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [101.560, 3.070],
+          [101.660, 3.070],
+          [101.660, 3.160],
+          [101.560, 3.160],
+          [101.560, 3.070]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Puchong" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [101.580, 2.990],
+          [101.660, 2.990],
+          [101.660, 3.070],
+          [101.580, 3.070],
+          [101.580, 2.990]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Shah Alam" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [101.450, 3.000],
+          [101.560, 3.000],
+          [101.560, 3.120],
+          [101.450, 3.120],
+          [101.450, 3.000]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Subang Jaya" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [101.540, 3.000],
+          [101.610, 3.000],
+          [101.610, 3.090],
+          [101.540, 3.090],
+          [101.540, 3.000]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Kuala Lumpur" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [101.640, 3.080],
+          [101.760, 3.080],
+          [101.760, 3.230],
+          [101.640, 3.230],
+          [101.640, 3.080]
+        ]]
+      }
+    }
+  ]
+}
