@@ -24,6 +24,7 @@
   <meta name="theme-color" content="#1B4332" />
 
   <link rel="stylesheet" href="/shared-layout.css?v=70" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
   <style>
     :root {
@@ -178,6 +179,38 @@
       padding: 22px;
       margin-bottom: 34px;
       animation: cardReveal .75s ease .42s both;
+    }
+
+    .kl-area-map-section {
+      margin-bottom: 34px;
+    }
+
+    .kl-area-map-section.hidden {
+      display: none;
+    }
+
+    .kl-area-map-title {
+      margin: 0 0 14px;
+      font-size: clamp(20px, 2.4vw, 26px);
+      font-weight: 800;
+      color: var(--dark);
+      letter-spacing: -0.02em;
+    }
+
+    .kl-area-map-canvas {
+      width: 100%;
+      height: 380px;
+      border-radius: 22px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      box-shadow: 0 12px 40px rgba(0,0,0,.08);
+      background: #e8eaed;
+    }
+
+    .kl-area-map-canvas .leaflet-container {
+      font-family: Arial, Helvetica, sans-serif;
+      height: 100%;
+      width: 100%;
     }
 
     .filter-row {
@@ -523,6 +556,10 @@
         grid-template-columns: 1fr;
       }
 
+      .kl-area-map-canvas {
+        height: 300px;
+      }
+
       .listing-thumb {
         height: 240px;
       }
@@ -586,6 +623,11 @@
       </div>
     </div>
 
+    <section class="kl-area-map-section hidden" id="klAreaMapSection" aria-label="Area exploration map">
+      <h2 class="kl-area-map-title" id="klAreaMapTitle">Explore on Map</h2>
+      <div id="klAreaExploreMap" class="kl-area-map-canvas" role="presentation"></div>
+    </section>
+
     <div class="listing-list" id="listingList"></div>
     <div class="empty-state" id="emptyState">No listings found.</div>
 
@@ -593,6 +635,8 @@
 </main>
 
 <div id="site-footer"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script type="module" src="/shared-layout.js?v=70"></script>
 
@@ -631,6 +675,171 @@
 
   let allItems = [];
   let baseFilteredItems = [];
+  let klAreaLeafletMap = null;
+
+  const KL_MAP_QUERY_NAMES = [
+    "Kepong",
+    "Batu",
+    "Wangsa Maju",
+    "Setiawangsa",
+    "Segambut",
+    "Titiwangsa",
+    "Bukit Bintang",
+    "Lembah Pantai",
+    "Cheras",
+    "Seputeh",
+    "Bandar Tun Razak"
+  ];
+
+  function getCategoryPathKey() {
+    let path = window.location.pathname.replace(/^\/|\/$/g, "");
+    if (path.startsWith("categories/")) {
+      path = path.replace("categories/", "");
+    }
+    return path || "";
+  }
+
+  function isCategoryListingsTemplatePath() {
+    const path = getCategoryPathKey();
+    if (path === "listings.html" || path.endsWith("listings.html")) return true;
+    const simpleTypes = [
+      "all-listings",
+      "condominium",
+      "apartment",
+      "terrace-house",
+      "semi-detached-house",
+      "bungalow",
+      "townhouse",
+      "soho"
+    ];
+    if (simpleTypes.includes(path)) return true;
+    if (path.includes("-for-sale-") || path.includes("-for-rent-")) return true;
+    return false;
+  }
+
+  /** Resolve KL constituency from query (?location=, ?area=, or ?city=) — matches site links that use `area`. */
+  function getKlAreaForMapFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    const candidates = [
+      params.get("location"),
+      params.get("area"),
+      params.get("city")
+    ].filter(Boolean);
+
+    for (let i = 0; i < candidates.length; i++) {
+      let decoded = String(candidates[i]).trim();
+      try {
+        decoded = decodeURIComponent(decoded);
+      } catch {
+        /* keep raw */
+      }
+      decoded = decoded.trim();
+      if (!decoded) continue;
+      const match =
+        KL_MAP_QUERY_NAMES.find((n) => n.toLowerCase() === decoded.toLowerCase()) || null;
+      if (match) return match;
+    }
+    return null;
+  }
+
+  async function initKlExploreMapForArea(areaName, listingsForPins) {
+    const section = document.getElementById("klAreaMapSection");
+    const container = document.getElementById("klAreaExploreMap");
+    const Leaflet = typeof window !== "undefined" ? window.L : undefined;
+    if (!section || !container || !Leaflet) {
+      console.warn("KL map: Leaflet not loaded");
+      return;
+    }
+
+    if (klAreaLeafletMap) {
+      klAreaLeafletMap.remove();
+      klAreaLeafletMap = null;
+    }
+    while (container.firstChild) container.removeChild(container.firstChild);
+
+    let geojson;
+    try {
+      geojson = await fetch("/map/kl-parlimen.geojson").then((r) => r.json());
+    } catch (err) {
+      console.error("KL map: failed to load GeoJSON", err);
+      section.classList.add("hidden");
+      return;
+    }
+
+    const feature = (geojson.features || []).find((f) => f.properties?.name === areaName);
+    if (!feature) {
+      section.classList.add("hidden");
+      return;
+    }
+
+    const map = Leaflet.map(container).setView([3.139, 101.6869], 11);
+    klAreaLeafletMap = map;
+
+    Leaflet.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: "&copy; OpenStreetMap"
+    }).addTo(map);
+
+    const polyLayer = Leaflet.geoJSON(
+      { type: "FeatureCollection", features: [feature] },
+      {
+        style: {
+          color: "#ff00cc",
+          weight: 4,
+          fillColor: "#ff00cc",
+          fillOpacity: 0.35
+        }
+      }
+    ).addTo(map);
+
+    listingsForPins.forEach((item) => {
+      const lat = Number(item.latitude);
+      const lng = Number(item.longitude);
+      if (
+        !Number.isFinite(lat) ||
+        !Number.isFinite(lng) ||
+        lat <= 2 ||
+        lat >= 4 ||
+        lng <= 100 ||
+        lng >= 102
+      ) {
+        return;
+      }
+      Leaflet.marker([lat, lng]).addTo(map);
+    });
+
+    polyLayer.bringToBack();
+
+    const pb = polyLayer.getBounds();
+    if (pb.isValid()) {
+      map.fitBounds(pb, { padding: [28, 28], maxZoom: 14 });
+    }
+
+    setTimeout(() => map.invalidateSize(), 80);
+    setTimeout(() => map.invalidateSize(), 350);
+  }
+
+  function maybeShowKlAreaMap(listingsForPins) {
+    const section = document.getElementById("klAreaMapSection");
+    const titleEl = document.getElementById("klAreaMapTitle");
+    if (!section || !titleEl) return;
+
+    if (!isCategoryListingsTemplatePath()) {
+      section.classList.add("hidden");
+      return;
+    }
+
+    const klName = getKlAreaForMapFromURL();
+    if (!klName) {
+      section.classList.add("hidden");
+      return;
+    }
+
+    section.classList.remove("hidden");
+    titleEl.textContent = `Explore ${klName} on Map`;
+
+    void initKlExploreMapForArea(klName, listingsForPins);
+  }
 
   function slugToType(slug) {
     const map = {
@@ -1011,6 +1220,7 @@ card.innerHTML = `
       baseFilteredItems = filtered;
 
       renderListings(baseFilteredItems);
+      maybeShowKlAreaMap(items);
 
       const toggleButtons = document.querySelectorAll("#listingTypeFilter button");
 
@@ -1027,6 +1237,7 @@ card.innerHTML = `
       resultsText.textContent = "Failed to load listings";
       emptyState.style.display = "block";
       emptyState.textContent = "Unable to load listings.";
+      document.getElementById("klAreaMapSection")?.classList.add("hidden");
     }
   }
 
