@@ -659,7 +659,7 @@
     }
 
     const params = new URLSearchParams(window.location.search);
-    const area = params.get("area") || params.get("city");
+    const area = params.get("area") || params.get("city") || params.get("location");
 
     const simpleTypes = [
       "all-listings",
