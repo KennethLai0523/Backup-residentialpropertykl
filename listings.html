@@ -742,7 +742,30 @@
     return null;
   }
 
-  async function initKlExploreMapForArea(areaName, listingsForPins) {
+  function escapeHtmlListingsMap(str) {
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function orderedKlFeaturesFromGeojson(geojson) {
+    const allowed = new Set(KL_MAP_QUERY_NAMES);
+    const features = (geojson.features || []).filter((f) => allowed.has(f.properties?.name));
+    features.sort(
+      (a, b) =>
+        KL_MAP_QUERY_NAMES.indexOf(a.properties.name) - KL_MAP_QUERY_NAMES.indexOf(b.properties.name)
+    );
+    return features;
+  }
+
+  /**
+   * @param {object[]} listingsForPins
+   * @param {{ focusArea: string | null }} options — focusArea null = show all 11 polygons
+   */
+  async function initKlExploreMap(listingsForPins, options) {
+    const focusArea = options && options.focusArea ? options.focusArea : null;
     const section = document.getElementById("klAreaMapSection");
     const container = document.getElementById("klAreaExploreMap");
     const Leaflet = typeof window !== "undefined" ? window.L : undefined;
@@ -766,8 +789,11 @@
       return;
     }
 
-    const feature = (geojson.features || []).find((f) => f.properties?.name === areaName);
-    if (!feature) {
+    let features = orderedKlFeaturesFromGeojson(geojson);
+    if (focusArea) {
+      features = features.filter((f) => f.properties.name === focusArea);
+    }
+    if (!features.length) {
       section.classList.add("hidden");
       return;
     }
@@ -781,13 +807,32 @@
     }).addTo(map);
 
     const polyLayer = Leaflet.geoJSON(
-      { type: "FeatureCollection", features: [feature] },
+      { type: "FeatureCollection", features },
       {
-        style: {
-          color: "#ff00cc",
-          weight: 4,
-          fillColor: "#ff00cc",
-          fillOpacity: 0.35
+        style(feature) {
+          if (focusArea) {
+            return {
+              color: "#ff00cc",
+              weight: 4,
+              fillColor: "#ff00cc",
+              fillOpacity: 0.35
+            };
+          }
+          return {
+            color: "#ff00cc",
+            weight: 3,
+            fillColor: "#ff00cc",
+            fillOpacity: 0.3
+          };
+        },
+        onEachFeature(feature, layer) {
+          if (focusArea) return;
+          const name = feature.properties.name;
+          const nameEsc = escapeHtmlListingsMap(name);
+          const href = `/categories/all-listings?area=${encodeURIComponent(name)}`;
+          layer.bindPopup(
+            `<div style="font-size:13px;line-height:1.4"><strong>${nameEsc}</strong><br><a href="${href}" style="color:var(--green,#1B4332);font-weight:700">View listings</a></div>`
+          );
         }
       }
     ).addTo(map);
@@ -812,11 +857,19 @@
 
     const pb = polyLayer.getBounds();
     if (pb.isValid()) {
-      map.fitBounds(pb, { padding: [28, 28], maxZoom: 14 });
+      map.fitBounds(pb, {
+        padding: [28, 28],
+        maxZoom: focusArea ? 14 : 12
+      });
     }
 
     setTimeout(() => map.invalidateSize(), 80);
     setTimeout(() => map.invalidateSize(), 350);
+  }
+
+  function isAllListingsPath() {
+    const path = getCategoryPathKey();
+    return path === "all-listings" || path === "listings.html" || path.endsWith("listings.html");
   }
 
   function maybeShowKlAreaMap(listingsForPins) {
@@ -830,15 +883,23 @@
     }
 
     const klName = getKlAreaForMapFromURL();
-    if (!klName) {
+
+    if (klName) {
+      section.classList.remove("hidden");
+      titleEl.textContent = `Explore ${klName} on Map`;
+      void initKlExploreMap(listingsForPins, { focusArea: klName });
+      return;
+    }
+
+    if (!isAllListingsPath()) {
       section.classList.add("hidden");
       return;
     }
 
     section.classList.remove("hidden");
-    titleEl.textContent = `Explore ${klName} on Map`;
+    titleEl.textContent = "Explore Kuala Lumpur areas on Map";
 
-    void initKlExploreMapForArea(klName, listingsForPins);
+    void initKlExploreMap(listingsForPins, { focusArea: null });
   }
 
   function slugToType(slug) {

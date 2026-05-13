@@ -793,17 +793,113 @@ const accountProfiles = {
   }
 };
 
-    function extractLatLng(url) {
-      let match = url.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/);
-      if (match) return { lat: parseFloat(match[1]), lng: parseFloat(match[2]) };
+    function extractLatLngFromGoogleMapsUrl(url) {
+      if (!url || typeof url !== "string") return null;
+      const s = url.trim();
+      if (!s) return null;
 
-      match = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
-      if (match) return { lat: parseFloat(match[1]), lng: parseFloat(match[2]) };
+      const num = "-?\\d+\\.?\\d*";
+      const pairRe = new RegExp(`!3d(${num})!4d(${num})`, "g");
+      let m;
+      let lastPair = null;
+      while ((m = pairRe.exec(s)) !== null) {
+        const lat = parseFloat(m[1]);
+        const lng = parseFloat(m[2]);
+        if (Number.isFinite(lat) && Number.isFinite(lng)) lastPair = { lat, lng };
+      }
+      if (lastPair) return lastPair;
 
-      match = url.match(/q=(-?\d+\.\d+),(-?\d+\.\d+)/);
-      if (match) return { lat: parseFloat(match[1]), lng: parseFloat(match[2]) };
+      const atRe = new RegExp(`@(${num}),(${num})`, "g");
+      let lastAt = null;
+      while ((m = atRe.exec(s)) !== null) {
+        const lat = parseFloat(m[1]);
+        const lng = parseFloat(m[2]);
+        if (Number.isFinite(lat) && Number.isFinite(lng)) lastAt = { lat, lng };
+      }
+      if (lastAt) return lastAt;
+
+      const tryParseQueryCoords = (search) => {
+        if (!search) return null;
+        try {
+          const params = new URLSearchParams(search.startsWith("?") ? search : `?${search}`);
+          const qRaw = params.get("q");
+          if (qRaw) {
+            const dec = decodeURIComponent(qRaw.replace(/\+/g, " "));
+            const parts = dec.split(/[,\s]+/).map((x) => parseFloat(x.trim()));
+            const nums = parts.filter((n) => Number.isFinite(n));
+            if (nums.length >= 2) return { lat: nums[0], lng: nums[1] };
+          }
+          const llRaw = params.get("ll");
+          if (llRaw) {
+            const parts = llRaw.split(",").map((x) => parseFloat(x.trim()));
+            if (parts.length >= 2 && Number.isFinite(parts[0]) && Number.isFinite(parts[1])) {
+              return { lat: parts[0], lng: parts[1] };
+            }
+          }
+        } catch {
+          /* ignore */
+        }
+        return null;
+      };
+
+      try {
+        const u = new URL(s);
+        const fromSearch = tryParseQueryCoords(u.search);
+        if (fromSearch) return fromSearch;
+      } catch {
+        /* not a full URL */
+      }
+
+      const qm = s.match(/[?&#]q=([^&]+)/);
+      if (qm) {
+        try {
+          const dec = decodeURIComponent(qm[1].replace(/\+/g, " "));
+          const parts = dec.split(/[,\s]+/).map((x) => parseFloat(x.trim()));
+          const nums = parts.filter((n) => Number.isFinite(n));
+          if (nums.length >= 2) return { lat: nums[0], lng: nums[1] };
+        } catch {
+          /* ignore */
+        }
+      }
+
+      const llm = s.match(/[?&#]ll=([^&]+)/);
+      if (llm) {
+        try {
+          const dec = decodeURIComponent(llm[1]);
+          const parts = dec.split(",").map((x) => parseFloat(x.trim()));
+          if (parts.length >= 2 && Number.isFinite(parts[0]) && Number.isFinite(parts[1])) {
+            return { lat: parts[0], lng: parts[1] };
+          }
+        } catch {
+          /* ignore */
+        }
+      }
 
       return null;
+    }
+
+    function applyLatLngFromGoogleMapsLink() {
+      const mapsEl = document.getElementById("googleMapsLink");
+      const latEl = document.getElementById("latitude");
+      const lngEl = document.getElementById("longitude");
+      if (!mapsEl || !latEl || !lngEl) return;
+
+      const extracted = extractLatLngFromGoogleMapsUrl(mapsEl.value);
+      if (!extracted) return;
+
+      const latEmpty = !String(latEl.value).trim();
+      const lngEmpty = !String(lngEl.value).trim();
+
+      if (latEmpty) {
+        latEl.value = String(extracted.lat);
+        latEl.dispatchEvent(new Event("input", { bubbles: true }));
+        latEl.dispatchEvent(new Event("change", { bubbles: true }));
+      }
+      if (lngEmpty) {
+        lngEl.value = String(extracted.lng);
+        lngEl.dispatchEvent(new Event("input", { bubbles: true }));
+        lngEl.dispatchEvent(new Event("change", { bubbles: true }));
+      }
     }
 
 
@@ -1341,6 +1437,8 @@ function fillListingForm(data) {
   setValue("longitude", data.longitude);
   setValue("description", data.description);
   setValue("hotOffer", "false");
+
+  applyLatLngFromGoogleMapsLink();
 }
 
     function getFormData(imageUrl, agentImageUrl, galleryUrls, keepCreatedAt = null) {
@@ -1519,12 +1617,7 @@ document.getElementById("sourceAgentRow").style.display = "none";
       document.getElementById("latitude").value = item.latitude || "";
       document.getElementById("longitude").value = item.longitude || "";
 
-      const extracted = extractLatLng(item.googleMapsLink || "");
-      if (extracted) {
-        document.getElementById("latitude").value = extracted.lat;
-        document.getElementById("longitude").value = extracted.lng;
-      }
-
+      applyLatLngFromGoogleMapsLink();
 
       document.getElementById("description").value = item.description || "";
       document.getElementById("agentName").value = item.agentName || "Kenneth Lai";
@@ -2193,6 +2286,13 @@ onAuthStateChanged(auth, async (user) => {
 
     saveBtn.addEventListener("click", saveListing);
 
+    const googleMapsLinkInput = document.getElementById("googleMapsLink");
+    if (googleMapsLinkInput) {
+      const onMapsLinkMaybeExtract = () => applyLatLngFromGoogleMapsLink();
+      googleMapsLinkInput.addEventListener("input", onMapsLinkMaybeExtract);
+      googleMapsLinkInput.addEventListener("change", onMapsLinkMaybeExtract);
+      googleMapsLinkInput.addEventListener("paste", () => setTimeout(onMapsLinkMaybeExtract, 0));
+    }
 
 document.getElementById("importBtn").addEventListener("click", async () => {
   const importUrl = "";
