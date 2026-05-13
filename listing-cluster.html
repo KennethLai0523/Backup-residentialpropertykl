@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="/favicon.ico?v=2" />
+  <title>Property Listings by Area | Residential Property KL</title>
+  <meta name="description" id="meta-desc" content="Browse residential listings by area and intent in Kuala Lumpur and Selangor." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" id="canonical-link" href="https://residentialpropertykl.com/" />
+  <link rel="stylesheet" href="/shared-layout.css?v=80" />
+  <style>
+    body { margin:0; font-family:Arial,Helvetica,sans-serif; background:#F7F5F0; color:#111; }
+    .container { width:min(1100px,calc(100% - 40px)); margin:0 auto; }
+    .hero { background:#0f1713; color:#fff; padding:44px 0 32px; }
+    .hero h1 { margin:0 0 10px; font-size:clamp(26px,3.5vw,40px); }
+    .hero p { margin:0; max-width:800px; line-height:1.7; color:rgba(255,255,255,.85); }
+    .breadcrumb { font-size:13px; margin-bottom:14px; color:rgba(255,255,255,.7); }
+    .breadcrumb a { color:#fff; font-weight:700; }
+    main { padding:32px 0 72px; }
+    .card { background:#fff; border:1px solid rgba(0,0,0,.08); border-radius:20px; padding:22px; margin-bottom:20px; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:16px; }
+    .mini a { display:block; padding:14px; border-radius:14px; border:1px solid rgba(0,0,0,.08); text-decoration:none; color:inherit; background:#fafafa; }
+    .mini a:hover { border-color:rgba(27,67,50,.35); }
+    .muted { color:#666; font-size:14px; }
+  </style>
+</head>
+<body>
+  <div id="site-header"></div>
+  <header class="hero">
+    <div class="container">
+      <div class="breadcrumb"><a href="/">Home</a> › <a href="/categories/all-listings">Listings</a> › <span id="bc-here">Cluster</span></div>
+      <h1 id="cluster-h1">Listings</h1>
+      <p id="cluster-intro"></p>
+    </div>
+  </header>
+  <main class="container">
+    <div class="card">
+      <p class="muted" id="cluster-note"></p>
+      <div class="grid mini" id="cluster-grid"></div>
+    </div>
+    <div class="card">
+      <p>For the full editorial guide see <a id="cluster-area-link" href="#">area guide</a> · <a href="/categories/all-listings">All listings</a></p>
+    </div>
+  </main>
+  <div id="site-footer"></div>
+  <script type="module" src="/shared-layout.js?v=80"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, query, limit } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { SITE_ORIGIN, SITE_NAME, setCanonicalLink, applySocialMeta, injectJsonLd } from "/seo-meta.js?v=1";
+    import {
+      parseClusterPath,
+      listingMatchesAreaKeywords
+    } from "/seo-area-guide-data.js?v=1";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBKO4RNc5r8GoPHQyRHdUllLVwtXFNJyVo",
+      authDomain: "residentialpropertykl.firebaseapp.com",
+      projectId: "residentialpropertykl",
+      storageBucket: "residentialpropertykl.firebasestorage.app",
+      messagingSenderId: "952845303526",
+      appId: "1:952845303526:web:7b604dca11ad50a93bc527",
+      measurementId: "G-DV21X2EGJ0"
+    };
+
+    initializeApp(firebaseConfig);
+    const db = getFirestore();
+
+    const parsed = parseClusterPath(window.location.pathname);
+    if (!parsed) {
+      document.getElementById("cluster-h1").textContent = "Page not found";
+      document.getElementById("cluster-intro").textContent = "Use URLs like /rent/mont-kiara or /condo/petaling-jaya.";
+      document.getElementById("cluster-note").textContent = "";
+    } else {
+      const { intent, slug, guide } = parsed;
+      const pageUrl = `${SITE_ORIGIN}/${intent}/${slug}`;
+      const intentLabel =
+        intent === "rent"
+          ? "For rent"
+          : intent === "sale"
+            ? "For sale"
+            : intent === "condo"
+              ? "Condos"
+              : intent === "office"
+                ? "Offices"
+                : "Warehouses";
+
+      const h1 = `${intentLabel} — ${guide.title}`;
+      const intro = `${intentLabel} residential listings around ${guide.title}: ${guide.intro}`.slice(0, 520);
+      const desc = `${intentLabel} in ${guide.title}: browse live listings with area-aware filtering.`.slice(0, 158);
+
+      document.title = `${h1} | ${SITE_NAME}`;
+      document.getElementById("meta-desc").setAttribute("content", desc);
+      setCanonicalLink(pageUrl);
+      applySocialMeta({ title: `${h1} | ${SITE_NAME}`, description: desc, url: pageUrl, type: "website" });
+      document.getElementById("bc-here").textContent = `${intent} / ${guide.title}`;
+      document.getElementById("cluster-h1").textContent = h1;
+      document.getElementById("cluster-intro").textContent = intro;
+      document.getElementById("cluster-area-link").href = `/areas/${slug}`;
+      document.getElementById("cluster-area-link").textContent = `${guide.title} area guide`;
+
+      function listingIntentOk(item) {
+        const lt = String(item.listingType || "").toLowerCase();
+        if (intent === "rent") return lt.includes("rent");
+        if (intent === "sale") return (lt.includes("sale") || lt.includes("sell")) && !lt.includes("rent");
+        return true;
+      }
+
+      function listingTypeOk(item) {
+        const ty = String(item.type || "").toLowerCase();
+        if (intent === "condo") return ty.includes("condo");
+        if (intent === "office") return ty.includes("office");
+        if (intent === "warehouse") return ty.includes("warehouse");
+        return true;
+      }
+
+      const note = document.getElementById("cluster-note");
+      note.textContent =
+        intent === "office" || intent === "warehouse"
+          ? "Note: inventory is filtered by keyword match on type; many residential databases are homes-first — results may be sparse."
+          : "Listings below are filtered from your live database for this area cluster and intent.";
+
+      injectJsonLd("cluster-breadcrumb", {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: SITE_ORIGIN + "/" },
+          { "@type": "ListItem", position: 2, name: "Listings", item: SITE_ORIGIN + "/categories/all-listings" },
+          { "@type": "ListItem", position: 3, name: h1, item: pageUrl }
+        ]
+      });
+
+      const snap = await getDocs(query(collection(db, "listings"), limit(200)));
+      const out = [];
+      snap.forEach((doc) => {
+        const d = doc.data();
+        const st = String(d.status || "").toLowerCase();
+        if (st && st !== "active") return;
+        if (!listingMatchesAreaKeywords({ ...d, id: doc.id }, guide.filterKeywords)) return;
+        if (!listingIntentOk(d)) return;
+        if (!listingTypeOk(d)) return;
+        out.push({ id: doc.id, ...d });
+      });
+
+      const grid = document.getElementById("cluster-grid");
+      if (!out.length) {
+        grid.innerHTML = "<p class=\"muted\">No matching listings. Try the <a href=\"/areas/" + slug + "\">area guide</a> or <a href=\"/categories/all-listings\">all listings</a>.</p>";
+      } else {
+        grid.innerHTML = out
+          .slice(0, 24)
+          .map((it) => {
+            const sp = it.slug || "listing";
+            const t = (it.title || "Listing").replace(/</g, "");
+            const p = (it.price || "").toString().replace(/</g, "");
+            return `<a href="/listing/${sp}-${it.id}"><strong>${t}</strong><br><span class="muted">${p}</span></a>`;
+          })
+          .join("");
+      }
+    }
+  </script>
+</body>
+</html>

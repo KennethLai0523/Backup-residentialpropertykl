@@ -29,6 +29,30 @@
         "function": "importListing"
       },
       {
+        "source": "/areas/**",
+        "destination": "/area-guide.html"
+      },
+      {
+        "source": "/rent/**",
+        "destination": "/listing-cluster.html"
+      },
+      {
+        "source": "/sale/**",
+        "destination": "/listing-cluster.html"
+      },
+      {
+        "source": "/condo/**",
+        "destination": "/listing-cluster.html"
+      },
+      {
+        "source": "/office/**",
+        "destination": "/listing-cluster.html"
+      },
+      {
+        "source": "/warehouse/**",
+        "destination": "/listing-cluster.html"
+      },
+      {
         "source": "/categories/**",
         "destination": "/listings.html"
       },

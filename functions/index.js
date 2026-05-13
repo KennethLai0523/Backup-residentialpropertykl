@@ -131,6 +131,39 @@ exports.sitemap = functions.https.onRequest(async (req, res) => {
       "soho"
     ];
 
+    const areaGuideSlugs = [
+      "mont-kiara",
+      "klcc",
+      "bangsar",
+      "desa-parkcity",
+      "shah-alam",
+      "subang-jaya",
+      "cheras",
+      "petaling-jaya"
+    ];
+
+    const clusterIntents = ["rent", "sale", "condo", "office", "warehouse"];
+
+    areaGuideSlugs.forEach((slug) => {
+      urls += `
+<url>
+  <loc>${baseUrl}/areas/${slug}</loc>
+  <lastmod>${new Date().toISOString()}</lastmod>
+</url>
+`;
+    });
+
+    clusterIntents.forEach((intent) => {
+      areaGuideSlugs.forEach((slug) => {
+        urls += `
+<url>
+  <loc>${baseUrl}/${intent}/${slug}</loc>
+  <lastmod>${new Date().toISOString()}</lastmod>
+</url>
+`;
+      });
+    });
+
     categories.forEach((cat) => {
       urls += `
 <url>

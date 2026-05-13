@@ -957,6 +957,31 @@
   }
 }
 
+  /* Appended SEO supplement blocks (do not change hero/gallery layout) */
+  .seo-supplement-slot { margin-top: 6px; }
+  .seo-supplement .card { margin-bottom: 22px; }
+  .seo-muted { color: #666; font-size: 14px; line-height: 1.55; }
+  .seo-list { margin: 0; padding-left: 1.2rem; line-height: 1.65; }
+  .seo-area-links a { font-weight: 800; color: var(--green); margin-right: 6px; }
+  .seo-related-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+  }
+  .seo-related-card a {
+    display: block;
+    padding: 12px 14px;
+    border-radius: 14px;
+    border: 1px solid var(--line);
+    text-decoration: none;
+    color: inherit;
+    background: #fafafa;
+  }
+  .seo-related-card a:hover { border-color: rgba(27, 67, 50, 0.28); }
+  .seo-related-meta { display: block; font-size: 13px; color: #666; margin-top: 4px; }
+  .seo-faq dt { font-weight: 800; margin-top: 12px; }
+  .seo-faq dd { margin: 6px 0 0; color: #444; line-height: 1.6; }
+
   </style>
 </head>
 
@@ -984,7 +1009,8 @@ query,
 where,
 getDocs,
 doc,
-getDoc
+getDoc,
+limit
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   import {
@@ -994,6 +1020,13 @@ getDoc
     SITE_ORIGIN,
     SITE_NAME
   } from "/seo-meta.js?v=1";
+
+  import { matchAreaSlugForListing, AREA_GUIDES } from "/seo-area-guide-data.js?v=1";
+  import {
+    buildListingSeoSupplementHtml,
+    buildRelatedListingCards,
+    buildListingFaqJsonLd
+  } from "/seo-listing-supplements.js?v=1";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBKO4RNc5r8GoPHQyRHdUllLVwtXFNJyVo",
@@ -1045,6 +1078,72 @@ const listingKey = getListingKeyFromUrl();
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&#39;");
+  }
+
+  function categoryHrefForType(type) {
+    const t = String(type || "").toLowerCase();
+    if (t.includes("condo")) return "/categories/condominium";
+    if (t.includes("apartment")) return "/categories/apartment";
+    if (t.includes("terrace")) return "/categories/terrace-house";
+    if (t.includes("semi")) return "/categories/semi-detached-house";
+    if (t.includes("bungalow")) return "/categories/bungalow";
+    if (t.includes("townhouse")) return "/categories/townhouse";
+    if (t.includes("soho")) return "/categories/soho";
+    return "/categories/all-listings";
+  }
+
+  function categoryLabelForType(type) {
+    const t = String(type || "").toLowerCase();
+    if (t.includes("condo")) return "Condominiums";
+    if (t.includes("apartment")) return "Apartments";
+    if (t.includes("terrace")) return "Terrace houses";
+    if (t.includes("semi")) return "Semi-detached";
+    if (t.includes("bungalow")) return "Bungalows";
+    if (t.includes("townhouse")) return "Townhouses";
+    if (t.includes("soho")) return "SOHO";
+    return "All listings";
+  }
+
+  async function hydrateListingSeoContent(listingDocId, data) {
+    const mount = document.getElementById("seo-supplement-mount");
+    if (!mount) return;
+
+    const matchedSlug = matchAreaSlugForListing(data);
+    const areaGuide = matchedSlug ? AREA_GUIDES[matchedSlug] : null;
+
+    let related = [];
+    try {
+      const relSnap = await getDocs(query(collection(db, "listings"), limit(80)));
+      const wantType = String(data.type || "").toLowerCase();
+      const wantLoc = String(data.location || data.city || data.area || "")
+        .toLowerCase()
+        .replace(/\s+/g, " ")
+        .trim()
+        .slice(0, 8);
+
+      relSnap.forEach((doc) => {
+        if (doc.id === listingDocId || related.length >= 8) return;
+        const d = doc.data();
+        const sameType = wantType.length > 2 && String(d.type || "").toLowerCase() === wantType;
+        const hay = [d.location, d.city, d.area, d.address].filter(Boolean).join(" ").toLowerCase();
+        const nearLoc = wantLoc.length > 3 && hay.includes(wantLoc);
+        if (sameType || nearLoc) related.push({ id: doc.id, ...d });
+      });
+
+      if (related.length < 4) {
+        relSnap.forEach((doc) => {
+          if (doc.id === listingDocId || related.length >= 8) return;
+          if (related.some((r) => r.id === doc.id)) return;
+          related.push({ id: doc.id, ...doc.data() });
+        });
+      }
+    } catch (e) {
+      console.warn("Related listings for SEO supplement:", e);
+    }
+
+    const cards = buildRelatedListingCards(related.slice(0, 8), SITE_ORIGIN);
+    mount.innerHTML = buildListingSeoSupplementHtml(data, areaGuide, cards);
+    injectJsonLd("listing-faq-schema", buildListingFaqJsonLd());
   }
 
   function safeText(value) {
@@ -1164,7 +1263,7 @@ const data = snap.data();
         offer.price = priceDigits;
       }
 
-      injectJsonLd("listing-schema", {
+      const listingSchemaLd = {
         "@context": "https://schema.org",
         "@type": "RealEstateListing",
         name: pageTitle,
@@ -1178,15 +1277,28 @@ const data = snap.data();
           addressCountry: "MY"
         },
         offers: offer
-      });
+      };
+      const latN = Number(data.latitude);
+      const lngN = Number(data.longitude);
+      if (Number.isFinite(latN) && Number.isFinite(lngN)) {
+        listingSchemaLd.geo = {
+          "@type": "GeoCoordinates",
+          latitude: latN,
+          longitude: lngN
+        };
+      }
+      injectJsonLd("listing-schema", listingSchemaLd);
 
+      const catPath = categoryHrefForType(data.type);
+      const catLabel = categoryLabelForType(data.type);
       injectJsonLd("listing-breadcrumb", {
         "@context": "https://schema.org",
         "@type": "BreadcrumbList",
         itemListElement: [
           { "@type": "ListItem", position: 1, name: "Home", item: `${SITE_ORIGIN}/` },
-          { "@type": "ListItem", position: 2, name: "Listings", item: `${SITE_ORIGIN}/categories/all-listings` },
-          { "@type": "ListItem", position: 3, name: pageTitle, item: canonicalUrl }
+          { "@type": "ListItem", position: 2, name: catLabel, item: `${SITE_ORIGIN}${catPath.startsWith("/") ? "" : "/"}${catPath}` },
+          { "@type": "ListItem", position: 3, name: "All Listings", item: `${SITE_ORIGIN}/categories/all-listings` },
+          { "@type": "ListItem", position: 4, name: pageTitle, item: canonicalUrl }
         ]
       });
 
@@ -1247,6 +1359,8 @@ ${data.watermarkType === "watermark2"
           <div class="container hero-inner">
             <div class="breadcrumb">
               <a href="/">Home</a>
+              <span>›</span>
+              <a href="${categoryHrefForType(data.type)}">${escapeHtml(categoryLabelForType(data.type))}</a>
               <span>›</span>
               <a href="/categories/all-listings">All Listings</a>
               <span>›</span>
@@ -1412,6 +1526,8 @@ ${data.watermarkType === "watermark2"
                   </iframe>
                 </section>
 
+                <div id="seo-supplement-mount" class="seo-supplement-slot" data-seo="mount"></div>
+
                 <section class="card cta-card">
                   <div class="section-kicker" style="color:#EADFCB;">Residential Property KL</div>
                   <h2>Interested in This Property?</h2>
@@ -1452,6 +1568,8 @@ ${data.watermarkType === "watermark2"
           </div>
         </main>
       `;
+
+      void hydrateListingSeoContent(snap.id, data);
 
     } catch (error) {
       console.error(error);
