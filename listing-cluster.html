@@ -48,7 +48,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getFirestore, collection, getDocs, query, limit } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    import { SITE_ORIGIN, SITE_NAME, setCanonicalLink, applySocialMeta, injectJsonLd } from "/seo-meta.js?v=1";
+    import { SITE_ORIGIN, SITE_NAME, setCanonicalLink, applySocialMeta, injectJsonLd, truncateMetaDescription } from "/seo-meta.js?v=2";
     import {
       parseClusterPath,
       listingMatchesAreaKeywords
@@ -88,7 +88,9 @@
 
       const h1 = `${intentLabel} — ${guide.title}`;
       const intro = `${intentLabel} residential listings around ${guide.title}: ${guide.intro}`.slice(0, 520);
-      const desc = `${intentLabel} in ${guide.title}: browse live listings with area-aware filtering.`.slice(0, 158);
+      const desc = truncateMetaDescription(
+        `${intentLabel} in ${guide.title}: browse live listings with area-aware filtering and map search.`
+      );
 
       document.title = `${h1} | ${SITE_NAME}`;
       document.getElementById("meta-desc").setAttribute("content", desc);

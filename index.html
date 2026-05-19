@@ -89,7 +89,7 @@
   <link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
 
   <title>Residential Property KL | Klang Valley Condos, Landed Homes &amp; New Projects</title>
-  <meta name="description" content="Find residential property for sale and rent in Kuala Lumpur, Petaling Jaya and Selangor. Browse condos, apartments, terrace houses, semi-D, bungalows and Klang Valley new launches with Residential Property KL." />
+  <meta name="description" content="Find residential property for sale and rent in Kuala Lumpur and Selangor. Browse condos, terrace homes, semi-D, bungalows and new launches." />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://residentialpropertykl.com/" />
   <meta name="theme-color" content="#1B4332" />
@@ -2534,6 +2534,7 @@ border: 1px solid #D7E4DA;
   <div id="site-footer"></div>
   <script type="module" src="/shared-layout.js?v=12"></script>
   <script type="module">
+    import { buildListingImageAlt } from "/seo-meta.js?v=2";
     let listings = [];
 let filteredListings = [];
 let visibleCount = 6;
@@ -2581,9 +2582,10 @@ function renderListings(items) {
     const card = document.createElement('article');
     card.className = 'listing-card';
     card.dataset.link = `/listing/${item.slug || generateLink(item.title)}`;
+    const imgAlt = buildListingImageAlt(item).replace(/"/g, "&quot;");
     card.innerHTML = `
 
-    <div class="listing-image"
+    <div class="listing-image" role="img" aria-label="${imgAlt}"
       style="background-image:url('${item.image}')">
 
       <!-- 🔥 WATERMARK ADD HERE -->

@@ -1018,8 +1018,11 @@ limit
     applySocialMeta,
     injectJsonLd,
     SITE_ORIGIN,
-    SITE_NAME
-  } from "/seo-meta.js?v=1";
+    SITE_NAME,
+    buildListingPageTitle,
+    buildListingMetaDescription,
+    buildListingImageAlt
+  } from "/seo-meta.js?v=2";
 
   import { matchAreaSlugForListing, AREA_GUIDES } from "/seo-area-guide-data.js?v=1";
   import {
@@ -1219,21 +1222,16 @@ if (!snap || !snap.exists()) {
 const data = snap.data();
 
       const pageTitle = data.title || "Property Detail";
+      const seoTitle = buildListingPageTitle(data);
       const gallery = getGallery(data);
       const mainImage = gallery[0] || "/images/hero-residential-green.webp";
+      const mainImageAlt = buildListingImageAlt(data);
       const absImage = (u) =>
         !u || String(u).startsWith("http") ? u : `${SITE_ORIGIN}${String(u).startsWith("/") ? "" : "/"}${u}`;
 
-      document.title = `${pageTitle} | Residential Property KL`;
+      document.title = seoTitle;
 
-      const descParts = [
-        pageTitle,
-        data.location || "",
-        data.type || "",
-        data.listingType === "rent" ? "for rent" : "for sale",
-        "Klang Valley — Kuala Lumpur & Selangor."
-      ].filter(Boolean);
-      const metaContent = descParts.join(" · ").slice(0, 158);
+      const metaContent = buildListingMetaDescription(data);
 
       const metaDesc = document.getElementById("meta-desc");
       if (metaDesc) {
@@ -1245,7 +1243,7 @@ const data = snap.data();
       if (canonical) canonical.href = canonicalUrl;
 
       applySocialMeta({
-        title: `${pageTitle} | ${SITE_NAME}`,
+        title: seoTitle,
         description: metaContent,
         url: canonicalUrl,
         image: absImage(mainImage),
@@ -1270,6 +1268,7 @@ const data = snap.data();
         description: (data.description || metaContent).toString().slice(0, 5000),
         url: canonicalUrl,
         image: (gallery.length ? gallery : [mainImage]).map(absImage),
+        category: data.type || "Residential",
         address: {
           "@type": "PostalAddress",
           addressLocality: data.city || data.location || "Kuala Lumpur",
@@ -1330,7 +1329,7 @@ const thumbsHtml = gallery.map((img, index) => `
 
     <img
       src="${img}"
-      alt="Thumbnail ${index + 1}"
+      alt="${mainImageAlt.replace(/"/g, "&quot;")} — photo ${index + 1}"
       class="${index === 0 ? "active" : ""}"
       loading="${index === 0 ? "eager" : "lazy"}"
       decoding="async"
@@ -1424,7 +1423,7 @@ ${data.watermarkType === "watermark2"
     id="mainImage"
     class="main-image"
     src="${mainImage}"
-    alt="${safeTitle}"
+    alt="${mainImageAlt.replace(/"/g, "&quot;")}"
     fetchpriority="high"
     decoding="async"
   >

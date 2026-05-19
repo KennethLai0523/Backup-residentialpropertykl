@@ -2,9 +2,20 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Agent Profile | Industrial Property KL</title>
+  <title>Agent Profile | Residential Property KL</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#4da6ff" />
+  <meta name="description" id="meta-desc" content="Meet our residential property agents in Kuala Lumpur and Selangor. View agent profiles and active listings." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" id="canonical-link" href="https://residentialpropertykl.com/agent.html" />
+  <meta property="og:type" content="profile" />
+  <meta property="og:site_name" content="Residential Property KL" />
+  <meta property="og:locale" content="en_MY" />
+  <meta property="og:url" content="https://residentialpropertykl.com/agent.html" />
+  <meta property="og:title" content="Agent Profile | Residential Property KL" />
+  <meta property="og:description" content="Meet our residential property agents in Kuala Lumpur and Selangor." />
+  <meta property="og:image" content="https://residentialpropertykl.com/images/logo.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="theme-color" content="#1B4332" />
   <link rel="stylesheet" href="/shared-layout.css?v=12" />
 
   <style>
@@ -116,6 +127,14 @@
       query,
       where
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import {
+      SITE_ORIGIN,
+      SITE_NAME,
+      applySocialMeta,
+      setCanonicalLink,
+      truncateMetaDescription,
+      buildListingImageAlt
+    } from "/seo-meta.js?v=2";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBKO4RNc5r8GoPHQyRHdUllLVwtXFNJyVo",
@@ -134,7 +153,7 @@
       "kenneth-lai": {
         id: "kenneth-lai",
         name: "Kenneth Lai",
-        role: "Industrial Property Specialist",
+        role: "Residential Property Specialist",
         image: "/images/kenneth.png",
         phone: "+60 16-628 7357",
         email: "kennethrealtyconsultancy@gmail.com"
@@ -153,7 +172,7 @@
         id: "andrew-yap",
         uid: "xEn4hu0xHyayQVHBbnU3vbf7yp33",
         name: "Andrew Yap",
-        role: "Industrial Analyst",
+        role: "Property Analyst",
         image: "/images/andrew.png",
         phone: "+60 19-286 2772",
         email: "andrew.polygon@gmail.com"
@@ -200,7 +219,22 @@
         return;
       }
 
-      document.title = `${agent.name} | Industrial Property KL`;
+      const pageUrl = `${SITE_ORIGIN}/agent.html?id=${encodeURIComponent(agentId)}`;
+      const pageTitle = `${agent.name} — Agent Profile`;
+      const desc = truncateMetaDescription(
+        `View ${agent.name}'s residential property listings in Kuala Lumpur and Selangor. Contact ${agent.name} at Residential Property KL.`
+      );
+      document.title = `${pageTitle} | ${SITE_NAME}`;
+      setCanonicalLink(pageUrl);
+      const metaDesc = document.getElementById("meta-desc");
+      if (metaDesc) metaDesc.setAttribute("content", desc);
+      applySocialMeta({
+        title: `${pageTitle} | ${SITE_NAME}`,
+        description: desc,
+        url: pageUrl,
+        image: agent.image.startsWith("http") ? agent.image : `${SITE_ORIGIN}${agent.image}`,
+        type: "profile"
+      });
 
       document.getElementById("agentProfile").innerHTML = `
         <div class="agent-profile">
@@ -236,7 +270,7 @@
         card.className = "listing-card";
 
         card.innerHTML = `
-          <img src="${item.image || "/images/default-property.jpg"}" alt="${item.title || "Listing"}" loading="lazy" decoding="async">
+          <img src="${item.image || "/images/default-property.jpg"}" alt="${buildListingImageAlt({ ...item, title: item.title }).replace(/"/g, "&quot;")}" loading="lazy" decoding="async">
           <div class="listing-body">
             <div class="listing-price">${formatPrice(item.price)}</div>
             <h3>${item.title || "-"}</h3>

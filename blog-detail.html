@@ -463,7 +463,7 @@
     injectJsonLd,
     SITE_ORIGIN,
     SITE_NAME
-  } from "/seo-meta.js?v=1";
+  } from "/seo-meta.js?v=2";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBKO4RNc5r8GoPHQyRHdUllLVwtXFNJyVo",
@@ -638,7 +638,7 @@
 
       injectJsonLd("blog-jsonld", {
         "@context": "https://schema.org",
-        "@type": "BlogPosting",
+        "@type": ["Article", "BlogPosting"],
         headline: title,
         description,
         image: coverAbs,

@@ -8,6 +8,10 @@
   <meta name="description" id="meta-desc" content="Klang Valley residential area guide: transport, amenities, and listings." />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" id="canonical-link" href="https://residentialpropertykl.com/areas/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="Residential Property KL" />
+  <meta property="og:locale" content="en_MY" />
+  <meta name="twitter:card" content="summary_large_image" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="/shared-layout.css?v=80" />
   <style>
@@ -105,8 +109,9 @@
       setCanonicalLink,
       applySocialMeta,
       injectJsonLd,
-      upsertMetaByName
-    } from "/seo-meta.js?v=1";
+      upsertMetaByName,
+      truncateMetaDescription
+    } from "/seo-meta.js?v=2";
     import {
       getAreaGuide,
       AREA_GUIDE_SLUGS,
@@ -146,7 +151,9 @@
     } else {
       const pageUrl = `${SITE_ORIGIN}/areas/${slug}`;
       const title = `${guide.title} — Property Area Guide | ${SITE_NAME}`;
-      const desc = `${guide.title} area guide: connectivity, amenities, market notes, and live listings. ${guide.intro}`.slice(0, 158);
+      const desc = truncateMetaDescription(
+        `${guide.title} area guide: connectivity, amenities, market notes, and live listings. ${guide.intro}`
+      );
       document.title = title;
       document.getElementById("meta-desc").setAttribute("content", desc);
       setCanonicalLink(pageUrl);

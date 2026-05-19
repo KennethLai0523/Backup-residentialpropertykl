@@ -731,7 +731,17 @@
     collection,
     getDocs
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-  import { canonicalFromLocation, applySocialMeta, SITE_NAME, DEFAULT_OG_IMAGE } from "/seo-meta.js?v=1";
+  import {
+    canonicalFromLocation,
+    applySocialMeta,
+    injectJsonLd,
+    SITE_ORIGIN,
+    SITE_NAME,
+    DEFAULT_OG_IMAGE,
+    truncateMetaDescription,
+    buildListingImageAlt,
+    buildBreadcrumbJsonLd
+  } from "/seo-meta.js?v=2";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBKO4RNc5r8GoPHQyRHdUllLVwtXFNJyVo",
@@ -1165,8 +1175,9 @@ const detailUrl = `/listing/${slug}-${item.id}`;
       const label1 = item.listingType === "rent" ? "FOR RENT" : "FOR SALE";
       const hotLabel = item.hotOffer ? `<span class="label hot">HOT OFFER</span>` : "";
 
+const thumbAlt = buildListingImageAlt(item).replace(/"/g, "&quot;");
 card.innerHTML = `
-<div class="listing-thumb"
+<div class="listing-thumb" role="img" aria-label="${thumbAlt}"
   style="background-image:url('${item.image || "/images/hero-residential-green.webp"}')">
 
   ${item.watermarkType === "watermark2"
@@ -1241,16 +1252,21 @@ card.innerHTML = `
   }
 
   function updatePageText(type, listingType, location, area) {
-    const syncUrlMeta = (pageTitleStr, description) => {
+    const syncUrlMeta = (pageTitleStr, description, crumbs) => {
       const canonical = canonicalFromLocation();
+      const desc = truncateMetaDescription(description);
       canonicalLink.href = canonical;
+      if (metaDesc) metaDesc.setAttribute("content", desc);
       applySocialMeta({
         title: `${pageTitleStr} | ${SITE_NAME}`,
-        description,
+        description: desc,
         url: canonical,
         image: DEFAULT_OG_IMAGE,
         type: "website"
       });
+      if (crumbs && crumbs.length) {
+        injectJsonLd("listings-breadcrumb", buildBreadcrumbJsonLd(crumbs));
+      }
     };
 
     if (type && listingType && location) {
@@ -1262,54 +1278,60 @@ card.innerHTML = `
         .join(" ");
 
       const titleText = `${niceType} for ${niceIntent} in ${niceLocation}`;
+      const desc = `Browse ${niceType.toLowerCase()} for ${niceIntent.toLowerCase()} in ${niceLocation}, Klang Valley. View photos, prices and contact Residential Property KL for viewings.`;
 
       pageTitle.textContent = titleText;
       crumbLabel.textContent = titleText;
-      document.title = `${titleText} | Residential Property KL`;
+      document.title = `${titleText} | ${SITE_NAME}`;
       seoText.textContent = `Explore ${niceType.toLowerCase()} for ${niceIntent.toLowerCase()} in ${niceLocation}. Browse the latest residential property listings in ${niceLocation}.`;
 
-      if (metaDesc) {
-        metaDesc.setAttribute("content", `Browse ${niceType.toLowerCase()} for ${niceIntent.toLowerCase()} in ${niceLocation}, Klang Valley. View the latest residential property listings in ${niceLocation}.`);
-      }
-
-      syncUrlMeta(titleText, metaDesc ? metaDesc.getAttribute("content") : seoText.textContent);
+      syncUrlMeta(titleText, desc, [
+        { name: "Home", url: `${SITE_ORIGIN}/` },
+        { name: "Listings", url: `${SITE_ORIGIN}/categories/all-listings` },
+        { name: titleText, url: canonicalFromLocation() }
+      ]);
       return;
     }
 
     if (area) {
       const titleText = `Properties in ${area}`;
+      const desc = `Find condos, apartments, terrace houses, semi-D and bungalows in ${area}, Kuala Lumpur. Browse residential listings for sale and rent with Residential Property KL.`;
       pageTitle.textContent = titleText;
       crumbLabel.textContent = titleText;
-      document.title = `${titleText} | Residential Property KL`;
+      document.title = `${titleText} | ${SITE_NAME}`;
       seoText.textContent = `Browse residential property listings in ${area}, including condominiums, apartments, landed homes and new project options across Kuala Lumpur and Selangor.`;
-      if (metaDesc) {
-        metaDesc.setAttribute("content", `Find condos, apartments, terrace houses, semi-D and bungalows in ${area}. Klang Valley residential listings from Residential Property KL.`);
-      }
-      syncUrlMeta(titleText, metaDesc ? metaDesc.getAttribute("content") : seoText.textContent);
+      syncUrlMeta(titleText, desc, [
+        { name: "Home", url: `${SITE_ORIGIN}/` },
+        { name: "Listings", url: `${SITE_ORIGIN}/categories/all-listings` },
+        { name: area, url: canonicalFromLocation() }
+      ]);
       return;
     }
 
     if (type) {
       const niceType = slugToType(type);
+      const desc = `View ${niceType.toLowerCase()} for sale and for rent across KL, PJ and Selangor. Updated residential listings from Residential Property KL.`;
       pageTitle.textContent = niceType;
       crumbLabel.textContent = niceType;
-      document.title = `${niceType} | Residential Property KL`;
+      document.title = `${niceType} | ${SITE_NAME}`;
       seoText.textContent = `Browse ${niceType.toLowerCase()} listings in Kuala Lumpur, Petaling Jaya and Selangor (Klang Valley).`;
-      if (metaDesc) {
-        metaDesc.setAttribute("content", `View ${niceType.toLowerCase()} for sale and for rent across KL, PJ and Selangor. Updated residential listings.`);
-      }
-      syncUrlMeta(niceType, metaDesc ? metaDesc.getAttribute("content") : seoText.textContent);
+      syncUrlMeta(niceType, desc, [
+        { name: "Home", url: `${SITE_ORIGIN}/` },
+        { name: "Listings", url: `${SITE_ORIGIN}/categories/all-listings` },
+        { name: niceType, url: canonicalFromLocation() }
+      ]);
       return;
     }
 
     pageTitle.textContent = "All Listings";
     crumbLabel.textContent = "All Listings";
-    document.title = "All Listings | Residential Property KL";
+    document.title = `All Listings | ${SITE_NAME}`;
     seoText.textContent = "Browse residential property listings including condominiums, apartments, terrace houses, bungalows and more in Kuala Lumpur and Selangor.";
-    if (metaDesc) {
-      metaDesc.setAttribute("content", seoText.textContent);
-    }
-    syncUrlMeta("All Listings", seoText.textContent);
+    const desc = truncateMetaDescription(seoText.textContent);
+    syncUrlMeta("All Listings", desc, [
+      { name: "Home", url: `${SITE_ORIGIN}/` },
+      { name: "All Listings", url: `${SITE_ORIGIN}/categories/all-listings` }
+    ]);
   }
 
   function applyToggleFilter(selected) {

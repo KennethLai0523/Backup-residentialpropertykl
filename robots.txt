@@ -6,4 +6,8 @@ Allow: /
 Disallow: /admin.html
 Disallow: /login.html
 
+# Internal tools / scrapers
+Disallow: /scrapper/
+Disallow: /scraper-service/
+
 Sitemap: https://residentialpropertykl.com/sitemap.xml

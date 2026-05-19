@@ -173,10 +173,41 @@ exports.sitemap = functions.https.onRequest(async (req, res) => {
 `;
     });
 
+    const klConstituencies = [
+      "Kepong",
+      "Batu",
+      "Wangsa Maju",
+      "Setiawangsa",
+      "Segambut",
+      "Titiwangsa",
+      "Bukit Bintang",
+      "Lembah Pantai",
+      "Cheras",
+      "Seputeh",
+      "Bandar Tun Razak"
+    ];
+
+    klConstituencies.forEach((areaName) => {
+      urls += `
+<url>
+  <loc>${baseUrl}/categories/all-listings?area=${encodeURIComponent(areaName)}</loc>
+  <lastmod>${new Date().toISOString()}</lastmod>
+</url>
+`;
+    });
+
+    urls += `
+<url>
+  <loc>${baseUrl}/market-map.html</loc>
+  <lastmod>${new Date().toISOString()}</lastmod>
+</url>
+`;
+
     const seoPages = new Map();
 
     listingSnapshot.forEach((doc) => {
       const data = doc.data();
+      if (data.status && data.status !== "active") return;
 
       const seoType = mapTypeToSeo(data.type);
       const seoIntent = mapListingTypeToSeo(data.listingType);
@@ -208,6 +239,7 @@ exports.sitemap = functions.https.onRequest(async (req, res) => {
 
     listingSnapshot.forEach((doc) => {
       const data = doc.data();
+      if (data.status && data.status !== "active") return;
 
       const listingUrl = listingPublicLoc(baseUrl, doc);
       const lastmod = data.updatedAt

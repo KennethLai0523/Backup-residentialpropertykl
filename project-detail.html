@@ -642,8 +642,9 @@ import {
   applySocialMeta,
   injectJsonLd,
   SITE_ORIGIN,
-  SITE_NAME
-} from "/seo-meta.js?v=1";
+  SITE_NAME,
+  truncateMetaDescription
+} from "/seo-meta.js?v=2";
 
 const db = getFirestore();
 
@@ -698,7 +699,9 @@ async function loadProject() {
     const canon = document.getElementById("canonical-link");
     if (canon) canon.href = canonicalUrl;
 
-    const summaryText = (data.shortDescription || `${pageTitle} — new residential project in ${data.location || "Kuala Lumpur & Selangor"}.`).toString().slice(0, 160);
+    const summaryText = truncateMetaDescription(
+      data.shortDescription || `${pageTitle} — new residential project in ${data.location || "Kuala Lumpur & Selangor"}.`
+    );
     const meta = document.getElementById("meta-desc");
     if (meta) meta.setAttribute("content", summaryText);
 
