@@ -3,6 +3,8 @@ import {
   getFirestore,
   collection,
   getDocs,
+  query,
+  where,
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 
@@ -48,7 +50,9 @@ async function loadProjectsDropdown() {
   if (!dropdown) return;
 
   try {
-    const snapshot = await getDocs(collection(db, "developers"));
+    const snapshot = await getDocs(
+      query(collection(db, "developers"), where("status", "==", "published"))
+    );
 
     if (snapshot.empty) {
       dropdown.innerHTML = `<div style="padding:10px;">No projects yet</div>`;
@@ -59,20 +63,12 @@ async function loadProjectsDropdown() {
 
     snapshot.forEach((docSnap) => {
       const data = docSnap.data();
-
-      if (data.status === "published") {
-developers.push({
-  id: docSnap.id,
-  name: data.name || "Untitled Developer",
-  createdAt: data.createdAt || 0
-});
-      }
+      developers.push({
+        id: docSnap.id,
+        name: data.name || "Untitled Developer",
+        createdAt: data.createdAt || 0
+      });
     });
-
-    if (!developers.length) {
-      dropdown.innerHTML = `<div style="padding:10px;">No projects yet</div>`;
-      return;
-    }
 
     developers.sort((a, b) => b.createdAt - a.createdAt);
 

@@ -623,7 +623,9 @@
   import {
     getFirestore,
     collection,
-    getDocs
+    getDocs,
+    query,
+    where
   } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -772,19 +774,17 @@
     blogGrid.innerHTML = "";
 
     try {
-      const snapshot = await getDocs(collection(db, "blogs"));
+      const snapshot = await getDocs(
+        query(collection(db, "blogs"), where("status", "==", "published"))
+      );
 
       const docs = [];
 
       snapshot.forEach((docSnap) => {
-        const data = docSnap.data();
-
-        if ((data.status || "").toLowerCase() === "published") {
-          docs.push({
-            id: docSnap.id,
-            ...data
-          });
-        }
+        docs.push({
+          id: docSnap.id,
+          ...docSnap.data()
+        });
       });
 
       docs.sort((a, b) => {
