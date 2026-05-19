@@ -854,7 +854,6 @@
     const container = document.getElementById("klAreaExploreMap");
     const Leaflet = typeof window !== "undefined" ? window.L : undefined;
     if (!section || !container || !Leaflet) {
-      console.warn("KL map: Leaflet not loaded");
       return;
     }
 

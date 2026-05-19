@@ -388,7 +388,6 @@ const db = getFirestore(app);
     async function loadZonePolygons(zoneStats) {
       try {
         const geojson = await fetch("/map/kl-parlimen.geojson").then((res) => res.json());
-        console.log("Loaded GeoJSON zones:", geojson);
 
         if (zonePolygonsLayer) {
           map.removeLayer(zonePolygonsLayer);
