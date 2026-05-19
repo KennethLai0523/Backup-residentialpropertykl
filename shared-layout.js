@@ -21,8 +21,17 @@ const firebaseConfig = {
 };
 
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+let dbPromise = null;
+
+function getDb() {
+  if (!dbPromise) {
+    dbPromise = (async () => {
+      const app = initializeApp(firebaseConfig);
+      return getFirestore(app);
+    })();
+  }
+  return dbPromise;
+}
 
 function makeProjectSlug(title) {
   return (title || "project")
@@ -50,6 +59,7 @@ async function loadProjectsDropdown() {
   if (!dropdown) return;
 
   try {
+    const db = await getDb();
     const snapshot = await getDocs(
       query(collection(db, "developers"), where("status", "==", "published"))
     );
@@ -126,8 +136,19 @@ function setupSharedHeaderFooter() {
 async function initSharedLayout() {
   await loadSharedSection("site-header", "/header.html?v=3");
   await loadSharedSection("site-footer", "/footer.html?v=3");
-  await loadProjectsDropdown();
   setupSharedHeaderFooter();
+
+  const runDropdown = () => {
+    loadProjectsDropdown().catch((err) => {
+      console.error("Failed to load projects dropdown:", err);
+    });
+  };
+
+  if ("requestIdleCallback" in window) {
+    requestIdleCallback(runDropdown, { timeout: 3200 });
+  } else {
+    setTimeout(runDropdown, 1200);
+  }
 }
 
 function renderAgentRow(item) {
